@@ -1,0 +1,61 @@
+{
+  "name": "ToolCK",
+  "author": "Anh Phê",
+  "description": "Hỗ trợ theo dõi thị trường chứng khoán và tài chính\nCài extension để khắc phục lỗi CORS của nguồn dữ liệu.",
+  "version": "0.0.11",
+  "manifest_version": 3,
+  "icons": {
+    "16": "icons/f16.png",
+    "48": "icons/f48.png",
+    "128": "icons/f128.png"
+  },
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "permissions": [
+    "declarativeNetRequest",
+    "activeTab", "storage",
+    "contextMenus"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [{
+      "id": "getAPI",
+      "enabled": true,
+      "path": "rules.json"
+    }]
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Đến trang công cụ tài chính"
+  },
+"content_scripts": [{
+  "matches": ["<all_urls>"],
+  "js": ["chencss.js"],
+  "run_at": "document_start"
+}, {
+  "matches": ["https://wichart.vn/*"],
+  "js": ["revealdata.js"],
+  "run_at": "document_end"
+}, {
+  "matches": ["*://*.vieon.vn/*"],
+  "js": ["vieon_helper/content.js"],
+  "css": ["vieon_helper/styles.css"],
+  "run_at": "document_end"
+},{
+        "matches":[ "*://*.drive.google.com/*"],
+        "js": ["drive/pdf.js","drive/jspdf.debug.js" ],
+	"run_at": "document_end"
+    }],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*.png","vieon_helper/styles.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

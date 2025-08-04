@@ -1,0 +1,43 @@
+/* Container chính cho danh sách gợi ý */
+#vieon-account-suggester {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 99999; /* Luôn nổi lên trên cùng */
+    max-height: 250px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* Mỗi mục trong danh sách gợi ý */
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Hiệu ứng khi di chuột qua */
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+/* Kiểu chữ cho số điện thoại và ngày hết hạn */
+.suggestion-item .phone {
+    font-weight: bold;
+    color: #333;
+}
+
+.suggestion-item .expires {
+    color: #666;
+    font-size: 12px;
+}

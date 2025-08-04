@@ -1,0 +1,165 @@
+[{
+    "id": 1,
+    "priority": 1,
+    "action": {
+        "type": "modifyHeaders",
+        "responseHeaders": [{
+            "header": "access-control-allow-origin",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Headers",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Methods",
+            "operation": "set",
+            "value": "*"
+        }]
+    },
+    "condition": {
+        "urlFilter": "wichart.vn",
+        "resourceTypes": ["xmlhttprequest"]
+    }
+}, {
+    "id": 2,
+    "priority": 1,
+    "action": {
+        "type": "modifyHeaders",
+        "responseHeaders": [{
+            "header": "access-control-allow-origin",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Headers",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Methods",
+            "operation": "set",
+            "value": "*"
+        }]
+    },
+    "condition": {
+        "urlFilter": "fialda.com",
+        "resourceTypes": ["xmlhttprequest"]
+    }
+}, {
+    "id": 3,
+    "priority": 1,
+    "action": {
+        "type": "modifyHeaders",
+        "responseHeaders": [{
+            "header": "access-control-allow-origin",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Headers",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Methods",
+            "operation": "set",
+            "value": "*"
+        }]
+    },
+    "condition": {
+        "urlFilter": "fireant.vn",
+        "resourceTypes": ["xmlhttprequest"]
+    }
+}, {
+    "id": 4,
+    "priority": 1,
+    "action": {
+        "type": "modifyHeaders",
+        "responseHeaders": [{
+            "header": "access-control-allow-origin",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Headers",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Methods",
+            "operation": "set",
+            "value": "*"
+        }]
+    },
+    "condition": {
+        "urlFilter": "fidt.vn",
+        "resourceTypes": ["xmlhttprequest"]
+    }
+},
+{
+    "id": 5,
+    "priority": 1,
+    "action": {
+        "type": "modifyHeaders",
+        "responseHeaders": [{
+            "header": "access-control-allow-origin",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Headers",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Methods",
+            "operation": "set",
+            "value": "*"
+        }]
+    },
+    "condition": {
+        "urlFilter": "fialda.com",
+        "resourceTypes": ["xmlhttprequest"]
+    }
+},
+{
+    "id": 6,
+    "priority": 1,
+    "action": {
+        "type": "modifyHeaders",
+        "responseHeaders": [{
+            "header": "access-control-allow-origin",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Headers",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Methods",
+            "operation": "set",
+            "value": "*"
+        }]
+    },
+    "condition": {
+        "urlFilter": "stockline.vn",
+        "resourceTypes": ["xmlhttprequest"]
+    }
+},
+{
+    "id": 7,
+    "priority": 1,
+    "action": {
+        "type": "modifyHeaders",
+        "responseHeaders": [{
+            "header": "access-control-allow-origin",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Headers",
+            "operation": "set",
+            "value": "*"
+        }, {
+            "header": "Access-Control-Allow-Methods",
+            "operation": "set",
+            "value": "*"
+        }]
+    },
+    "condition": {
+        "urlFilter": "simplize.vn",
+        "resourceTypes": ["xmlhttprequest"]
+    }
+}]

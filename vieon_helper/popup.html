@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Nạp tài khoản Vieon</title>
+    <style>
+        body { font-family: sans-serif; margin: 15px; background-color: #f4f4f4; }
+        h1 { color: #333; }
+        textarea { width: 95%; height: 300px; margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; border: none; background-color: #007bff; color: white; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #fileInput { margin-top: 15px; }
+        #status { margin-top: 15px; font-weight: bold; }
+        p { color: #555; }
+    </style>
+</head>
+<body>
+    <h1>Nạp dữ liệu tài khoản</h1>
+    <p>Dán danh sách tài khoản vào ô dưới đây hoặc chọn một file .txt.</p>
+    
+    <textarea id="dataInput" placeholder="0788862368:4@Anhthai1987 | Gói đăng kí = [VIP - Không tự động gia hạn] | Ngày hết hạn = [02/03/2025] | config by = @cosmicisback"></textarea>
+    
+    <button id="saveButton">Lưu dữ liệu</button>
+    <br>
+    <input type="file" id="fileInput" accept=".txt">
+
+    <p id="status"></p>
+    <p style="font-size:0.8em">
+	<i>Nguồn: <a href="https://t.me/vieonchannelchat" target=_blank>VieonChannel Premium Chat</a></i>
+    </p>
+    <script src="popup.js"></script>
+</body>
+</html>
