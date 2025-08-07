@@ -38,7 +38,7 @@ Object.assign(scrollButton.style, {
   height: '50px',
   fontSize: '24px',
   cursor: 'pointer',
-  zIndex: '1000',
+  zIndex: '9999',
 });
 
 document.body.appendChild(scrollButton);

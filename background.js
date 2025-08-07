@@ -48,7 +48,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
     if (info.menuItemId === "open-guide") {
         // Mở file hướng dẫn trong một tab mới
-        chrome.tabs.create({ url: "hdsd.html" });
+        chrome.tabs.create({ url: "https://drphe.github.io/BM/hdsd.html" });
     }
 
 });
