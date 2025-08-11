@@ -257,7 +257,7 @@ function findRecoveries(data) {
                     inDecline = false;
                 } else {
                     // điều kiện xác nhận hồi phục khi đáy ở dưới ma20 và giá hồi phục vượt được ma20
-                    if (data[i].value > ma10[i] && trough < ma10[i]) { // giá vượt ngưỡng  phục hồi hoặc vượt MA20
+                   if ((data[i].value > ma10[i] && trough < ma10[i]) || (data.length-i < 6)){ // giá vượt ngưỡng  phục hồi hoặc vượt MA20
                         const recoveryDate = data[i].time; // Thời điểm hồi phục
                         results.push({
                             drawdown: (1 - trough / peak) * 100,
@@ -303,7 +303,7 @@ function findRecoveries(data) {
     } else {
         let gg = output[output.length - 1].drawdown.toFixed(2);
         temp = ` Đã tăng từ đáy ${results[results.length-1].bottomDate}: <span style="padding: 2px; color: rgb(0, 170, 0);">${results[results.length-1].recover.toFixed(2)}</span>%.`;
-        ckht += `Mức chiết khấu của đỉnh <span title="Đang xu hướng tăng hoặc đi ngang"> đỉnh gần nhất </span>${output[output.length-1].startDate}: <span style="padding: 2px; color: rgb(0, 170, 0);" >${gg}%</span>.${temp}<br/>${predict(output, gg)}`;
+        ckht += `Mức chiết khấu của <span title="Đang xu hướng tăng hoặc đi ngang"> đỉnh gần nhất </span>${output[output.length-1].startDate}: <span style="padding: 2px; color: rgb(0, 170, 0);" >${gg}%</span>.${temp}<br/>${predict(output, gg)}`;
     }
 
     return output;
