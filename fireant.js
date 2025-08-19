@@ -488,3 +488,87 @@ function predict(data, dropValue) {
 
     return `<i>Mức hồi phục dự báo là:<span style="padding: 2px; color: rgb(0, 170, 0);"> ${probabilitys.toFixed(2)}% </span>(xs 90%)</i><br/>------<br/>Hệ số tương quan: ${correlation.toFixed(2)}. Hệ số hồi quy: Slope = ${regression.slope.toFixed(2)}, Intercept = ${regression.intercept.toFixed(2)}. Giá trị t: ${tValue.toFixed(2)}, Mối tương quan ${significant} ý nghĩa thống kê.<br/>`;
 }
+
+
+// copy link báo cáo
+
+async function copyText(text) {
+    await navigator.clipboard.writeText(text);
+   // alert('Đã copy vào clipboard!');
+  }
+
+function extractReportId() {
+  const url = window.location.href;
+  const match = url.match(/\/reports\/(\d+)$/);
+  return match ? match[1] : null;
+}
+   
+function getBC() {
+  const reportId = extractReportId();
+   const url = `https://static.fireant.vn/reports/content/` + reportId
+  console.log(reportId); 
+copyText(url)
+
+}
+
+document.addEventListener('click', function () {
+  setTimeout(() => {
+    const dialogBody = document.querySelector('.bp5-dialog-body');
+    if (!dialogBody) return;
+
+    const downloadButtons = dialogBody.querySelectorAll('button.bp5-button');
+    const hasDownloadButton = Array.from(downloadButtons).some(btn =>
+      btn.textContent.trim() === 'Tải về'
+    );
+
+    const alreadyInserted = dialogBody.querySelector('button.bp5-button[data-custom="NoteBookLM"]');
+    if (hasDownloadButton && !alreadyInserted) {
+      const newButton = document.createElement('button');
+      newButton.type = 'button';
+      newButton.className = 'bp5-button';
+      newButton.setAttribute('data-custom', 'NoteBookLM');
+      newButton.style.marginLeft = '10px';
+      newButton.addEventListener('click', () => {
+  	getBC();
+  	newButton.classList.add("bp5-intent-primary");
+	});
+
+      const iconSpan = document.createElement('span');
+      iconSpan.className = 'bp5-icon bp5-icon-download';
+      iconSpan.setAttribute('aria-hidden', 'true');
+
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('height', '16');
+      svg.setAttribute('width', '16');
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('viewBox', '0 0 200 200');
+
+      const g1 = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g1.setAttribute('id', 'Layer_1');
+
+      const g2 = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', 'M87.27,1.14C39.07,1.14,0,39.88,0,87.69v41.44h16.09v-4.13c0-19.39,15.84-35.11,35.39-35.11s35.39,15.72,35.39,35.11v4.13h16.09v-4.13c0-28.2-23.05-51.05-51.48-51.05-11.07,0-21.32,3.46-29.72,9.37,8.79-17.32,26.88-29.21,47.77-29.21,29.51,0,53.44,23.74,53.44,53v22.02h16.09v-22.02c0-38.08-31.13-68.96-69.53-68.96-17.27,0-33.06,6.24-45.22,16.58,11.94-22.39,35.65-37.64,62.97-37.64,39.32,0,71.19,31.61,71.19,70.6v41.44h16.09v-41.44C174.55,39.88,135.48,1.14,87.27,1.14Z');
+
+      g2.appendChild(path);
+      g1.appendChild(g2);
+      svg.appendChild(g1);
+      iconSpan.appendChild(svg);
+
+      const textSpan = document.createElement('span');
+      textSpan.className = 'bp5-button-text';
+      textSpan.textContent = 'Sao chép Link';
+
+      newButton.appendChild(iconSpan);
+      newButton.appendChild(textSpan);
+
+      const targetButton = Array.from(downloadButtons).find(btn =>
+        btn.textContent.trim() === 'Tải về'
+      );
+      if (targetButton) {
+        targetButton.parentNode.insertBefore(newButton, targetButton.nextSibling);
+      }
+    }
+  }, 500); // Chờ 300ms trước khi kiểm tra và chèn nút
+});
