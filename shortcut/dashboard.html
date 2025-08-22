@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Soạn bảng gõ tắt...</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: auto;
+            padding: 2rem;
+            background-color: #f8fafc;
+            height: 95vh;
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+
+        .shadow-lg {
+            --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+            box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background-color: #a59eea;
+            border-bottom: 1px solid #ddd;
+            border-radius: 16px 16px 0px 0px;
+        }
+
+        .switch {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .switch input {
+            display: none;
+        }
+
+        .slider {
+            position: relative;
+            width: 40px;
+            height: 20px;
+            background-color: #ccc;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 1px;
+            top: 1px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        input:checked+.slider {
+            background-color: #4f46e5;
+        }
+
+        input:checked+.slider::before {
+            transform: translateX(20px);
+        }
+
+        .container {
+            display: flex;
+            height: 100%;
+
+        }
+
+        #shortcutPanel {
+            display: flex;
+            flex: 1;
+            background-color: #fff;
+        }
+
+        #shortcutList,
+        #editor {
+            padding: 20px;
+            flex: 1;
+        }
+
+        #shortcutList {
+            border-right: 1px solid #ddd;
+            background: #fff;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+
+        #editor {
+            background: #fefefe;
+        }
+
+        h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f0f0f5;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .item:hover {
+            background: #dbeafe;
+        }
+
+        textarea,
+        input[type="text"] {
+            width: 90%;
+            padding: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        textarea {
+            height: 100px;
+            resize: none;
+        }
+
+        button {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: background 0.2s;
+        }
+
+        #newBtn {
+            background-color: green;
+            color: white;
+        }
+
+        #saveBtn {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        #saveBtn:hover {
+            background-color: #4338ca;
+        }
+
+        #deleteBtn {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        #deleteBtn:hover {
+            background-color: #dc2626;
+        }
+
+        .button {
+            display: inline-flex;
+            align-self: center;
+            margin-inline-end: 0.5rem;
+            align-items: flex-end;
+            color: blue;
+        }
+
+        ::-webkit-scrollbar-track {
+            box-shadow: inset 0 0 0 grey;
+            border-radius: 1px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            border-radius: 0px;
+            background: #ccc;
+        }
+
+        ::-webkit-scrollbar {
+            width: 0px;
+            height: 0px;
+            background: transparent;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h2 style="margin: 0;">Bảng gõ tắt</h2>
+        <label class="switch">
+            <input type="checkbox" id="toggleShortcuts" checked>
+            <span class="slider"></span>
+            <span>Bật/Tắt bảng gõ tắt</span>
+        </label>
+    </div>
+
+    <div class="container shadow-lg">
+        <div id="shortcutPanel">
+            <div id="shortcutList">
+                <h3>📋 Danh sách gõ tắt</h3>
+                <div id="list"></div>
+            </div>
+            <div id="editor">
+                <h3>✏️ Biên tập</h3>
+                <input type="text" id="editKey" placeholder="Từ gõ tắt">
+                <textarea type="text" id="editValue" placeholder="Từ đầy đủ"></textarea><br />
+                <button id="newBtn">Tạo mới</button>
+                <button id="saveBtn">Lưu</button>
+                <button id="deleteBtn">Xóa</button><br />
+                <div style="margin: 10px 0px;"><button id="exportBtn" style="opacity: 1; pointer-events: auto;"><span class="button"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" aria-hidden="true" focusable="false" height="22px" width="22px" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11 16h2V7h3l-4-5-4 5h3z"></path>
+                                <path d="M5 22h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2z"></path>
+                            </svg> Export</span></button>
+                    <button id="importBtn" style="opacity: 1; pointer-events: auto;"><span class="button"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" aria-hidden="true" focusable="false" height="22px" width="22px" xmlns="http://www.w3.org/2000/svg">
+                                <path d="m12 18 4-5h-3V2h-2v11H8z"></path>
+                                <path d="M19 9h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2z"></path>
+                            </svg> Import</span></button>
+                    <input type="file" id="importFile" accept=".json" style="display:none;">
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
