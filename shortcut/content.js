@@ -19,11 +19,18 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-// Lắng nghe sự kiện nhấn phím
-function attachListenerToInputs() {
-  const inputs = document.querySelectorAll("input, textarea");
+function attachListenerToInputs(root = document) {
+  const inputs = root.querySelectorAll("input, textarea, [contenteditable='true']");
   inputs.forEach((input) => {
     input.addEventListener("keydown", handleShortcut);
+  });
+
+  // Tìm và xử lý các shadowRoot bên trong root hiện tại
+  const allElements = root.querySelectorAll("*");
+  allElements.forEach((el) => {
+    if (el.shadowRoot) {
+      attachListenerToInputs(el.shadowRoot); // Đệ quy vào shadow DOM
+    }
   });
 }
 
@@ -32,17 +39,32 @@ function handleShortcut(e) {
   if (!shortcutToggle) return;
 
   if (e.key === " ") {
-    const value = target.value;
+    const value = target.value !== undefined ? target.value : target.innerText;
     const words = value.split(" ");
     const lastWord = words[words.length - 1];
 
     if (shortcuts[lastWord]) {
       e.preventDefault();
       words[words.length - 1] = shortcuts[lastWord];
-      target.value = words.map(w => changeText(w)).join(" ") + " ";
+      const newText = words.map(w => changeText(w)).join(" ") + " ";
+
+      if (target.value !== undefined) {
+        target.value = newText;
+      } else {
+        target.innerText = newText;
+
+        // 👉 Đặt lại con trỏ về cuối
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(target);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     }
   }
 }
+
 
 const observer = new MutationObserver(() => {
   attachListenerToInputs();
