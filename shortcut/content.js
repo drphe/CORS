@@ -20,21 +20,36 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 });
 
 // Lắng nghe sự kiện nhấn phím
-document.addEventListener("keydown", function (e) {
+function attachListenerToInputs() {
+  const inputs = document.querySelectorAll("input, textarea");
+  inputs.forEach((input) => {
+    input.addEventListener("keydown", handleShortcut);
+  });
+}
+
+function handleShortcut(e) {
   const target = e.target;
   if (!shortcutToggle) return;
 
-  if (target && (target.tagName === "TEXTAREA" || target.tagName === "INPUT")) {
-    if (e.key === " ") {
-      const value = target.value;
-      const words = value.split(" ");
-      const lastWord = words[words.length - 1];
+  if (e.key === " ") {
+    const value = target.value;
+    const words = value.split(" ");
+    const lastWord = words[words.length - 1];
 
-      if (shortcuts[lastWord]) {
-        words[words.length - 1] = shortcuts[lastWord];
-        target.value = words.join(" ") + " ";
-        e.preventDefault(); // Ngăn thêm dấu cách mặc định
-      }
+    if (shortcuts[lastWord]) {
+      e.preventDefault();
+      words[words.length - 1] = shortcuts[lastWord];
+      target.value = words.join(" ") + " ";
     }
   }
+}
+
+const observer = new MutationObserver(() => {
+  attachListenerToInputs();
 });
+
+observer.observe(document.body, { childList: true, subtree: true });
+
+
+
+
