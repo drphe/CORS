@@ -7,6 +7,7 @@ chrome.action.onClicked.addListener(function(tab) {
  
 chrome.runtime.onInstalled.addListener(() => {
 chrome.storage.sync.set({ shortcutToggle: false });
+chrome.storage.sync.set({ cssToggle: true });
 // menu mở Wichart
   chrome.contextMenus.create({
     id: "wichart",
@@ -36,7 +37,15 @@ chrome.storage.sync.set({ shortcutToggle: false });
         title: "✏️ Soạn bảng gõ tắt...",
         contexts: ["action"] // Hiển thị khi nhấp chuột phải vào biểu tượng extension
     });
+// css
+    chrome.contextMenus.create({
+        id: "css",
+        title: "✨ Giao diện tùy chỉnh CSS...",
+        contexts: ["action"] // Hiển thị khi nhấp chuột phải vào biểu tượng extension
+    });
 });
+
+
 // Lắng nghe sự kiện click vào nút menu context
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "loadVieonAccounts") {
@@ -54,12 +63,13 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     chrome.tabs.create({ url: wichartUrl });
   }
     if (info.menuItemId === "open-guide") {
-        // Mở file hướng dẫn trong một tab mới
         chrome.tabs.create({ url: "https://drphe.github.io/BM/hdsd.html" });
     }
     if (info.menuItemId === "banggotat") {
-        // Mở file hướng dẫn trong một tab mới
         chrome.tabs.create({ url: "shortcut/dashboard.html" });
+    }
+    if (info.menuItemId === "css") {
+        chrome.tabs.create({ url: "advancedCss.html" });
     }
 });
 

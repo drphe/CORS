@@ -1,23 +1,22 @@
-(async () => {
-    try {
-        var a = await fetch("https://raw.githubusercontent.com/drphe/data/main/morecss.json");
-        var moreCode = await a.json();
-        if (moreCode) {
-            const currentURL = window.location.href;
-            var needInclude = moreCode.find(item => currentURL.includes(item.url));
-            if (needInclude) {
-                if (needInclude.css) {
-                    var style = document.createElement('style');
-                    style.textContent = needInclude.css;
-                    document.head.appendChild(style);
-                }
-            }else {
-            console.log("Không có Css mở rộng")
-            }
+let cssToggle = true;
+let cssList = []; // đổi sang mảng
+
+// Lấy dữ liệu ban đầu từ storage
+chrome.storage.sync.get(["morecss", "cssToggle"], (data) => {
+    cssList = data.morecss || [];   // luôn là mảng
+    cssToggle = data.cssToggle;
+
+    // Nếu bật toggle thì chèn CSS
+    if (cssToggle) {
+        const currentURL = window.location.href;
+        const needInclude = cssList.find(item => currentURL.includes(item.url));
+
+        if (needInclude?.css) {
+            const style = document.createElement("style");
+            style.textContent = needInclude.css;
+            document.head.appendChild(style);
         } else {
-            console.log("Không tải được css mở rộng!")
+            console.log("Không có CSS mở rộng");
         }
-    } catch (e) {
-        console.log(e)
     }
-})()
+});

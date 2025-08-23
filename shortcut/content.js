@@ -39,7 +39,7 @@ function handleShortcut(e) {
     if (shortcuts[lastWord]) {
       e.preventDefault();
       words[words.length - 1] = shortcuts[lastWord];
-      target.value = words.join(" ") + " ";
+      target.value = words.map(w => changeText(w)).join(" ") + " ";
     }
   }
 }
@@ -50,6 +50,60 @@ const observer = new MutationObserver(() => {
 
 observer.observe(document.body, { childList: true, subtree: true });
 
+const commandList = ["/homnay", "/homqua", "/homkia", "/ngaymai", "/ngaymot"];
+
+function changeText(textString) {
+  return commandList.reduce(
+    (text, command) => text.replaceAll(command, parseText(command)), textString
+  );
+}
+
+function parseText(command) {
+  const today = new Date();
+  let result = [];
+
+  switch (command) {
+    case "/homnay":
+      result.push(formatDate(today));
+      break;
+
+    case "/homqua":
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      result.push(formatDate(yesterday));
+      break;
+
+    case "/homkia":
+      const yesterdays = new Date(today);
+      yesterdays.setDate(today.getDate() - 2);
+      result.push(formatDate(yesterdays));
+      break;
+
+    case "/ngaymai":
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      result.push(formatDate(tomorrow));
+      break;
+
+    case "/ngaymot":
+      const tomorrows = new Date(today);
+      tomorrows.setDate(today.getDate() + 2);
+      result.push(formatDate(tomorrows));
+      break;
+
+    default:
+      result.push(command);
+  }
+
+  return result;
+}
+
+function formatDate(date) {
+  const day = date.getDate();
+  const month = date.getMonth() + 1; // JS đếm từ 0
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
 
 
 
