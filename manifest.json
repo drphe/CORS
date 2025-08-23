@@ -2,7 +2,7 @@
   "name": "ToolCK",
   "author": "Anh Phê",
   "description": "Hỗ trợ theo dõi thị trường chứng khoán và tài chính\nCài extension để khắc phục lỗi CORS của nguồn dữ liệu.",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "manifest_version": 3,
   "icons": {
     "16": "icons/f16.png",
@@ -33,7 +33,7 @@
 "content_scripts": [{
   "matches": ["<all_urls>"],
   "js": ["chencss.js", "shortcut/content.js"],
-  "run_at": "document_start"
+  "run_at": "document_end"
 }, {
   "matches": ["*://*.wichart.vn/*"],
   "js": ["revealdata.js"],
@@ -48,10 +48,10 @@
   "css": ["vieon_helper/styles.css"],
   "run_at": "document_end"
 },{
-        "matches":[ "*://*.drive.google.com/*"],
-        "js": ["drive/pdf.js","drive/jspdf.debug.js" ],
-	"run_at": "document_end"
-    }],
+  "matches":[ "*://*.drive.google.com/*"],
+  "js": ["drive/pdf.js","drive/jspdf.debug.js" ],
+  "run_at": "document_end"
+}],
 
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
