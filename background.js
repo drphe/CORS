@@ -192,9 +192,15 @@ chrome.runtime.onInstalled.addListener(() => {
         id: "wichart",
         title: "Mở Wichart",
         contexts: ["page", "selection", "link", "image"],
-        documentUrlPatterns: ["*://*.drphe.github.io/*"]
+        documentUrlPatterns: ["*://*.drphe.github.io/BM/*"]
     });
-
+    // menu mở Wichart
+    chrome.contextMenus.create({
+        id: "repo",
+        title: "Tải repo editor",
+        contexts: ["page", "selection", "link", "image"],
+        documentUrlPatterns: ["*://*.drphe.github.io/KhoIPA/*"]
+    });
     // Đăng nhập tài khoản Vieon VIP
     chrome.contextMenus.create({
         id: "loadVieonAccounts",
@@ -254,6 +260,12 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         // Mở một tab mới với URL đã chỉ định.
         chrome.tabs.create({
             url: wichartUrl
+        });
+    }
+    if (info.menuItemId === "repo") {
+        const khoipatUrl = "khoipa/index.html";
+        chrome.tabs.create({
+            url: khoipatUrl
         });
     }
     if (info.menuItemId === "open-guide") {
