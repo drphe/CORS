@@ -88,6 +88,8 @@
        } else if (taskType === 'SIMULATED') {
          downloadJSON('https://ipa.cypwn.xyz/cypwn.json', 'repo.cypwn.json');
          downloadJSON('https://ipa.cypwn.xyz/cypwn_ts.json', 'repo.cypwn_ts.json');
+         downloadJSON('https://appstore.nabzclan.vip/repos/altstore.php', 'repo.nabzclan.json');
+	
          let progress = 0;
          const steps = 10; // Số bước (10%, 20%, ..., 100%)
          const stepDuration = durationMs / steps;
