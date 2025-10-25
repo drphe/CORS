@@ -91,7 +91,7 @@
      }
 
      async function main(updateProgressUI, source) { // lấy dữ liệu từ trang thuthuatjb
-         if (!source.apps || !Array.isArray(data.apps)) {
+         if (!source.apps || !Array.isArray(source.apps)) {
            throw new Error("Dữ liệu không hợp lệ hoặc thiếu 'apps'");
          }
          console.log(`Bắt đầu lấy ảnh chụp màn hình cho ${source.apps.length} ứng dụng...`);
@@ -199,7 +199,7 @@
      })
 
      document.getElementById('button4').addEventListener("click", (e) => {
-	const url1 = 'https://drphe.github.io/KhoIPA/upload/repo.nabzclan.json';
+	const url1 = 'https://drphe.github.io/KhoIPA/upload/repo.thuthuatjb.json';
 	const url2 = 'https://ipa.thuthuatjb.com/view/read.php';
 	compareAndDownloadJSON(url1, url2, 'repo.thuthuatjb.json', true); 
      })
