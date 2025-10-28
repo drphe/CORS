@@ -345,3 +345,59 @@ document.addEventListener('keydown', (event) => {
         modal.remove();
     };
 }
+
+
+(() => {
+ const button = document.getElementById('button5');
+  // Tạo input file ẩn
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.style.display = 'none';
+  document.body.appendChild(input);
+
+  // Khi click nút, kích hoạt chọn file
+  button.onclick = () => {
+    input.click();
+  };
+
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return console.log('Chưa chọn ảnh.');
+
+    // Hiệu ứng loading
+    button.disabled = true;
+    const originalText = button.textContent;
+    button.textContent = 'Đang tải lên...';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('https://picul.de/upload-api', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic`,
+          'fileName': file.name
+        },
+        body: formData
+      });
+
+      const result = await res.json();
+      const link = "https://picul.de/view/" + result.success;
+      console.log('Kết quả trả về:', link);
+
+      // Sao chép vào clipboard
+      await navigator.clipboard.writeText(link);
+      alert('Đã sao chép link vào clipboard:\n' + link);
+    } catch (err) {
+      console.error('Lỗi upload:', err);
+      alert('Lỗi khi tải ảnh lên.');
+    } finally {
+      // Khôi phục nút
+      button.disabled = false;
+      button.textContent = originalText;
+      input.value = ''; // reset input
+    }
+  };
+})();
