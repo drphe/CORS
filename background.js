@@ -1,6 +1,7 @@
 var pref = {
     'shortcutToggle': false,
     'cssToggle': true,
+    'allowCopy':false,
     'version': chrome.runtime.getManifest().version
 };
 
@@ -226,7 +227,11 @@ chrome.runtime.onInstalled.addListener(() => {
         title: "✨ Giao diện tùy chỉnh CSS...",
         contexts: ["action"] // Hiển thị khi nhấp chuột phải vào biểu tượng extension
     });
-
+        chrome.contextMenus.create({
+            title: pref.allowCopy ? "✅ Đã bật SupperCopy" : "❌ Không dùng SupperCopy",
+            id: 'allowCopy',
+            contexts: ["action", "page"]
+        })
     // Hướng dẫn sử dụng
     chrome.contextMenus.create({
         id: "open-guide",
@@ -245,7 +250,7 @@ chrome.action.onClicked.addListener(function(tab) {
 
 
 // Lắng nghe sự kiện click vào nút menu context
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     if (info.menuItemId === "loadVieonAccounts") {
         // Mở popup.html trong một cửa sổ mới
         chrome.windows.create({
@@ -255,6 +260,13 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             height: 650
         });
     }
+        if (info.menuItemId === 'allowCopy') {
+            pref.allowCopy = !pref.allowCopy
+            await chrome.storage.local.set(pref);
+    await chrome.contextMenus.update("allowCopy", {
+      title: pref.allowCopy ? "✅ Đã bật SupperCopy" : "❌ Không dùng SupperCopy",
+    });
+        }
     if (info.menuItemId === "wichart") {
         const wichartUrl = "https://wichart.vn";
         // Mở một tab mới với URL đã chỉ định.
