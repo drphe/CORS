@@ -2,7 +2,7 @@
     "name": "🛠️ ToolCK",
     "author": "Anh Phê",
     "description": "Hỗ trợ theo dõi thị trường chứng khoán và tài chính\nCài extension để khắc phục lỗi CORS của nguồn dữ liệu.",
-    "version": "0.0.34",
+    "version": "0.0.35",
     "manifest_version": 3,
     "icons": {
         "16": "icons/f16.png",

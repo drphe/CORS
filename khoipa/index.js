@@ -140,11 +140,14 @@
              tintColor: app.tintColor ?? "00adef",
              iconURL: app.iconURL ?? "./common/assets/img/generic_app.jpeg",
              screenshotURLs: app.screenshotURLs ?? [],
+	     screenshots : app.screenshots ?? [],
+             appPermissions: app.appPermissions ?? {"entitlements": [],"privacy": {}},
              size: app.size ?? firstVersion.size ?? 0,
              version: app.version ?? firstVersion.version ?? "1.0.0",
              versions: app.versions ?? [versionInfo] ?? [],
              versionDate: appDate,
-             downloadURL: app.downloadURL ?? firstVersion.downloadURL ?? ""
+             downloadURL: app.downloadURL ?? firstVersion.downloadURL ?? "",
+	     patreon:app.patreon ?? {}
            };
            uniqueAppsMap.set(bundleID, newApp);
          }
@@ -156,7 +159,13 @@
          if (app.versions.length > MAX_VERSIONS) {
            app.versions = app.versions.slice(0, MAX_VERSIONS);
          }
+	  delete app.size;//
+	  delete app.version;//
+	  delete app.downloadURL;//
+	  delete app.versionDate;//
+	  delete app.versionDescription;//
        });
+
        const newSource = {
          ...source,
          apps: consolidatedApps
@@ -371,25 +380,24 @@ document.addEventListener('keydown', (event) => {
     button.textContent = 'Đang tải lên...';
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('image', file);
 
     try {
-      const res = await fetch('https://picul.de/upload-api', {
+      const res = await fetch('https://api.imgbb.com/1/upload?key=382cf5a0a2e43717f1205d5fce4ccede', {
         method: 'POST',
-        headers: {
-          'Authorization': `Basic`,
-          'fileName': file.name
-        },
         body: formData
       });
 
       const result = await res.json();
-      const link = "https://picul.de/view/" + result.success;
-      console.log('Kết quả trả về:', link);
-
+     if(result.success){
+      const link = result.data.url;
+      console.log('Kết quả trả về:', result);
       // Sao chép vào clipboard
       await navigator.clipboard.writeText(link);
       alert('Đã sao chép link vào clipboard:\n' + link);
+	} else {
+      alert('Không upload được ảnh');
+	}
     } catch (err) {
       console.error('Lỗi upload:', err);
       alert('Lỗi khi tải ảnh lên.');

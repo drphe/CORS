@@ -213,24 +213,24 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         id: "draw",
         title: "🎨 Công cụ vẽ",
-        contexts: ["action"] // Hiển thị khi nhấp chuột phải vào biểu tượng extension
+        contexts: ["action"] 
     });
     // bảng gõ tắt
     chrome.contextMenus.create({
         id: "banggotat",
         title: "✏️ Soạn bảng gõ tắt...",
-        contexts: ["action"] // Hiển thị khi nhấp chuột phải vào biểu tượng extension
+        contexts: ["action"] 
     });
     // css
     chrome.contextMenus.create({
         id: "css",
         title: "✨ Giao diện tùy chỉnh CSS...",
-        contexts: ["action"] // Hiển thị khi nhấp chuột phải vào biểu tượng extension
+        contexts: ["action"] 
     });
         chrome.contextMenus.create({
             title: pref.allowCopy ? "✅ Đã bật SupperCopy" : "❌ Không dùng SupperCopy",
             id: 'allowCopy',
-            contexts: ["action", "page"]
+            contexts: ["action"]
         })
     // Hướng dẫn sử dụng
     chrome.contextMenus.create({
