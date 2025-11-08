@@ -21,7 +21,71 @@
 
      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applySystemTheme);
 
-     async function fetchScreenshotsForApps(apps, progressCallback) {
+async function fetchScreenshotsForAppsNab(apps, progressCallback) {// nabzclan
+  let successCount = 0;
+  let failureCount = 0;
+  let processedCount = 0;
+  const totalApps = apps.length;
+
+  loadingTitle.textContent = `Đang tải ảnh chụp màn hình cho ${totalApps} ứng dụng...`;
+
+  const tasks = apps.map(async (app) => {
+    const bundleId = app.bundleIdentifier;
+    const url = app.download_page_url;
+
+    try {
+      const res = await fetch(url);
+      const html = await res.text();
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+
+      const anchors = doc.querySelectorAll('a[href*="screenshots/"]');
+      const screenShotURL = new Set();
+
+      anchors.forEach(a => {
+        const href = a.getAttribute("href");
+        if (href) screenShotURL.add(href);
+
+        const img = a.querySelector("img");
+        if (img && img.dataset.src) {
+          screenShotURL.add(img.dataset.src);
+        }
+      });
+
+      app.screenshotURLs = [...screenShotURL];
+
+      if (app.screenshotURLs.length > 0) {
+        successCount++;
+      } else {
+        failureCount++;
+      }
+    } catch (err) {
+      console.error(`❌ Không thể lấy ảnh cho bundleID: ${bundleId}`, err);
+      app.screenshotURLs = [];
+      failureCount++;
+    }
+
+    processedCount++;
+    const progressPercentage = Math.min(100, Math.round((processedCount / totalApps) * 100));
+    progressCallback(progressPercentage);
+
+    if (processedCount % 10 === 0 || processedCount === totalApps) {
+      console.log(`📦 Đã xử lý ${processedCount}/${totalApps} ứng dụng...`);
+    }
+  });
+
+  // Chờ tất cả các tác vụ song song hoàn thành
+  await Promise.all(tasks);
+
+  console.log(`✅ Ảnh lấy thành công: ${successCount}`);
+  console.log(`❌ Ảnh không lấy được: ${failureCount}`);
+
+  // Đảm bảo tiến trình đạt 100% khi tất cả đã hoàn thành
+  progressCallback(100);
+}
+
+     async function fetchScreenshotsForAppsThuthuatjb(apps, progressCallback) {// thuthuatjb
        let successCount = 0;
        let failureCount = 0;
        let processedCount = 0;
@@ -78,28 +142,52 @@
          progressBar.style.width = `${progress}%`;
          progressText.textContent = `${progress}%`;
          if (progress >= 100) {
-           console.log(`Tác vụ ${taskName} đã hoàn thành.`);
+           //console.log(`Tác vụ ${taskName} đã hoàn thành.`);
            setTimeout(() => {
              overlay.classList.remove('active'); // Ẩn overlay
              loadingTitle.textContent = 'Đang Xử Lý...'; // Reset tiêu đề
            }, 500);
          }
        };
-       if (taskType === 'ASYNC_TASK') {
-         main(updateProgressUI, data)
-       } 
+       if (taskType === 'THUTHUATJB_TASK') {
+         mainThuthuatjb(updateProgressUI, data)
+       } else if (taskType === 'NABZCLAN_TASK') {
+         mainNab(updateProgressUI, data)
+       } else {
+	  let i = 0;
+  	const intervalMs = durationMs / 100;
+
+  	const interval = setInterval(() => {
+    		updateProgressUI(i); 
+    		i++;
+
+    		if (i > 100) {
+      			clearInterval(interval); 
+   	 }
+  	}, intervalMs);
+
+	}
      }
 
-     async function main(updateProgressUI, source) { // lấy dữ liệu từ trang thuthuatjb
+     async function mainThuthuatjb(updateProgressUI, source) { // lấy dữ liệu từ trang thuthuatjb
          if (!source.apps || !Array.isArray(source.apps)) {
            throw new Error("Dữ liệu không hợp lệ hoặc thiếu 'apps'");
          }
          console.log(`Bắt đầu lấy ảnh chụp màn hình cho ${source.apps.length} ứng dụng...`);
-         await fetchScreenshotsForApps(source.apps, updateProgressUI);
+         await fetchScreenshotsForAppsThuthuatjb(source.apps, updateProgressUI);
          const fileName = "repo.thuthuatjb.json";
          initiateDownload(source, fileName);
      }
 
+     async function mainNab(updateProgressUI, source) { // lấy dữ liệu từ trang thuthuatjb
+         if (!source.apps || !Array.isArray(source.apps)) {
+           throw new Error("Dữ liệu không hợp lệ hoặc thiếu 'apps'");
+         }
+         console.log(`Bắt đầu lấy ảnh chụp màn hình cho ${source.apps.length} ứng dụng...`);
+         await fetchScreenshotsForAppsNab(source.apps, updateProgressUI);
+         const fileName = "repo.nabzclan.json";
+         initiateDownload(source, fileName);
+     }
 
      function consolidateApps(source) { // sắp xếp lại dữ liệu
        const uniqueAppsMap = new Map();
@@ -147,7 +235,8 @@
              versions: app.versions ?? [versionInfo] ?? [],
              versionDate: appDate,
              downloadURL: app.downloadURL ?? firstVersion.downloadURL ?? "",
-	     patreon:app.patreon ?? {}
+	     patreon:app.patreon ?? {},
+             download_page_url : app.download_page_url??""
            };
            uniqueAppsMap.set(bundleID, newApp);
          }
@@ -159,17 +248,15 @@
          if (app.versions.length > MAX_VERSIONS) {
            app.versions = app.versions.slice(0, MAX_VERSIONS);
          }
-	  delete app.size;//
-	  delete app.version;//
-	  delete app.downloadURL;//
-	  delete app.versionDate;//
-	  delete app.versionDescription;//
        });
 
        const newSource = {
          ...source,
          apps: consolidatedApps
        };
+        newSource.META ||= {repoName: newSource.name,repoIcon: newSource.iconURL};
+        newSource.sourceImage ||= newSource.iconURL;
+        newSource.sourceURL ||= "https://drphe.github.io/KhoIPA/upload/";
        return newSource;
      }
 
@@ -191,60 +278,120 @@
        }
      }
 
-     document.getElementById('button1').addEventListener("click", (e) => {
-	const url1 = 'https://drphe.github.io/KhoIPA/upload/repo.cypwn.json';
-	const url2 = 'https://ipa.cypwn.xyz/cypwn.json';
-	compareAndDownloadJSON(url1, url2, 'repo.cypwn.json'); 
-     })
-     document.getElementById('button2').addEventListener("click", (e) => {
-	const url1 = 'https://drphe.github.io/KhoIPA/upload/repo.cypwn_ts.json';
-	const url2 = 'https://ipa.cypwn.xyz/cypwn_ts.json';
-	compareAndDownloadJSON(url1, url2, 'repo.cypwn_ts.json'); 
-     })
-     document.getElementById('button3').addEventListener("click", (e) => {
-	const url1 = 'https://drphe.github.io/KhoIPA/upload/repo.nabzclan.json';
-	const url2 = 'https://appstore.nabzclan.vip/repos/altstore.php';
-	compareAndDownloadJSON(url1, url2, 'repo.nabzclan.json'); 
-     })
+const repoConfigs = [
+  { buttonId: 'button1', url1: 'https://drphe.github.io/KhoIPA/upload/repo.cypwn.json', url2: 'https://ipa.cypwn.xyz/cypwn.json', filename: 'repo.cypwn.json' },
+  { buttonId: 'button2', url1: 'https://drphe.github.io/KhoIPA/upload/repo.cypwn_ts.json', url2: 'https://ipa.cypwn.xyz/cypwn_ts.json', filename: 'repo.cypwn_ts.json' },
+  { buttonId: 'button3', url1: 'https://drphe.github.io/KhoIPA/upload/repo.nabzclan.json', url2: 'https://appstore.nabzclan.vip/repos/altstore.php', filename: 'repo.nabzclan.json'},
+  { buttonId: 'button4', url1: 'https://drphe.github.io/KhoIPA/upload/repo.thuthuatjb.json', url2: 'https://ipa.thuthuatjb.com/view/read.php', filename: 'repo.thuthuatjb.json' },
+];
 
-     document.getElementById('button4').addEventListener("click", (e) => {
-	const url1 = 'https://drphe.github.io/KhoIPA/upload/repo.thuthuatjb.json';
-	const url2 = 'https://ipa.thuthuatjb.com/view/read.php';
-	compareAndDownloadJSON(url1, url2, 'repo.thuthuatjb.json', true); 
-     })
+repoConfigs.forEach(({ buttonId, url1, url2, filename }) => {
+  document.getElementById(buttonId)?.addEventListener("click", () => {
+    compareAndDownloadJSON(url1, url2, filename);
+  });
+});
+
+document.getElementById('button6')?.addEventListener("click", async () => { 
+   runTask("Check", "ALL_REPO", 3000, {});
+  const result = [];
+  for (const { url1, url2, filename} of repoConfigs) {
+    const re = await compareAndDownloadJSON(url1, url2, filename, false);
+    result.push(re);
+  }
+  overlay.classList.remove('active'); // Ẩn overlay
+  loadingTitle.textContent = 'Đang Xử Lý...'; // Reset tiêu đề
+  displayComparisonModalMultiResult(result);
+});
+
+
 
 function compareAppLists(oldData, newData) {
+    // 1. Kiểm tra tính hợp lệ của dữ liệu đầu vào
     if (!oldData || !newData || !Array.isArray(oldData.apps) || !Array.isArray(newData.apps)) {
-        return { newAppsCount: 0, newAppsList: [], removedAppsCount: 0, removedAppsList: [] };
+        console.error("Dữ liệu đầu vào không hợp lệ hoặc thiếu mảng 'apps'.");
+        return { 
+            newAppsCount: 0, newAppsList: [], 
+            removedAppsCount: 0, removedAppsList: [],
+            updatedAppsCount: 0, updatedAppsList: []
+        };
     }
 
-    const oldAppIdentifiers = new Set(oldData.apps.map(app => app.bundleIdentifier));
-    const oldAppMap = new Map(oldData.apps.map(app => [app.bundleIdentifier, app]));
-
-    const newApps = [];
-    
-    newData.apps.forEach(app => {
-        if (!oldAppIdentifiers.has(app.bundleIdentifier)) {
-            newApps.push({ name: app.name, bundleIdentifier: app.bundleIdentifier });
-        }
-        oldAppMap.delete(app.bundleIdentifier); // Loại bỏ những app còn tồn tại
+    // Tạo Map từ dữ liệu cũ để tra cứu nhanh chóng và lưu trữ toàn bộ đối tượng
+    const oldAppMap = new Map();
+    oldData.apps.forEach(app => {
+        // Đảm bảo versions là một mảng, nếu không có thì gán mảng rỗng
+        app.versions = Array.isArray(app.versions) ? app.versions : [];
+        oldAppMap.set(app.bundleIdentifier, app);
     });
 
+    const newApps = [];
+    const updatedApps = [];
+    
+    // 2. Lặp qua danh sách ứng dụng mới để tìm ứng dụng mới và ứng dụng có phiên bản mới
+    newData.apps.forEach(newApp => {
+        // Đảm bảo versions trong dữ liệu mới cũng là một mảng
+        newApp.versions = Array.isArray(newApp.versions) ? newApp.versions : [];
+        const bundleId = newApp.bundleIdentifier;
+        const oldApp = oldAppMap.get(bundleId);
+
+        if (!oldApp) {
+            // A. Ứng dụng mới (Chỉ có trong newData)
+            newApps.push({ 
+                name: newApp.name, 
+                bundleIdentifier: bundleId 
+            });
+        } else {
+            // B. Ứng dụng đã tồn tại, kiểm tra phiên bản mới
+            const oldVersions = oldApp.versions;
+            const newVersions = newApp.versions;
+
+            if (newVersions.length > oldVersions.length) {
+                // Phiên bản được cập nhật (mảng versions dài hơn)
+                const latestOldVersion = oldVersions[oldVersions.length - 1] || 'N/A';
+                const latestNewVersion = newVersions[newVersions.length - 1] || 'N/A';
+
+                updatedApps.push({
+                    name: newApp.name,
+                    bundleIdentifier: bundleId,
+                    // Thêm thông tin chi tiết về phiên bản để người dùng dễ theo dõi
+                    oldVersionCount: oldVersions.length,
+                    newVersionCount: newVersions.length,
+                    latestOldVersion: latestOldVersion,
+                    latestNewVersion: latestNewVersion,
+                });
+            }
+            
+            // Xóa ứng dụng khỏi map cũ để chỉ còn lại những ứng dụng bị xóa
+            oldAppMap.delete(bundleId); 
+        }
+    });
+
+    // 3. Các ứng dụng còn lại trong oldAppMap là ứng dụng đã bị xóa
     const removedApps = Array.from(oldAppMap.values()).map(app => ({
         name: app.name,
         bundleIdentifier: app.bundleIdentifier
     }));
 
+    // 4. Trả về kết quả thống kê đầy đủ
     return {
         newAppsCount: newApps.length,
         newAppsList: newApps,
+        
         removedAppsCount: removedApps.length,
-        removedAppsList: removedApps
+        removedAppsList: removedApps,
+
+        updatedAppsCount: updatedApps.length,
+        updatedAppsList: updatedApps,
     };
 }
 
 
 function initiateDownload(data, filename) {
+
+data.apps.forEach(obj => {
+  delete obj.download_page_url;
+});
+
     const jsonStr = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const link = document.createElement('a');
@@ -258,31 +405,118 @@ function initiateDownload(data, filename) {
     URL.revokeObjectURL(link.href);
 }
 
-async function compareAndDownloadJSON(url1, url2, filename = 'new_version.json', isLoading = false) {
-    try {
-        const [res1, res2] = await Promise.all([
-            fetch(url1),
-            fetch(url2)
-        ]);
-
-        const data1 = await res1.json();
-        const data2 = await res2.json();
-	const data_new = consolidateApps(data2)
-        const comparisonResult = compareAppLists(data1, data_new);
-        displayComparisonModal(data_new, filename, comparisonResult, isLoading);
-
-    } catch (err) {
-        console.error(`Lỗi tải hoặc so sánh JSON:`, err);
-        alert(`Đã xảy ra lỗi khi tải dữ liệu. Vui lòng kiểm tra console.`);
+async function compareAndDownloadJSON(url1,url2,filename = 'new_version.json',isDisplay = true) {
+  try {
+    const [res1, res2] = await Promise.all([fetch(url1), fetch(url2)]);
+    if (!res1.ok || !res2.ok) {
+      throw new Error(`Lỗi HTTP: ${res1.status} hoặc ${res2.status}`);
     }
+
+    const data1 = await res1.json();
+    const data2 = await res2.json();
+
+    const data_new = consolidateApps(data2);
+    const comparisonResult = compareAppLists(data1, data_new);
+
+    if (!isDisplay) {
+      return {
+        data: data_new,
+        filename,
+        comparisonResult
+      };
+    }
+
+    displayComparisonModal(data_new, filename, comparisonResult);
+  } catch (err) {
+    console.error('Lỗi tải hoặc so sánh JSON:', err);
+    alert('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng kiểm tra console.');
+  }
 }
 
-function displayComparisonModal(dataToDownload, filename, result, loading) {
-    const { newAppsCount, newAppsList, removedAppsCount, removedAppsList } = result;
+function displayComparisonModalMultiResult(results) {
+  let contentHTML = `<h2 class="text-xl">📦 Tổng quan cập nhật các Repo</h2><div style="  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 cột */
+  gap: 10px;">`;
+
+  results.forEach(({ data, filename, comparisonResult }, index) => {
+     const newAppsCount = comparisonResult.newAppsCount;
+  const removedAppsCount = comparisonResult.removedAppsCount;
+  const updatedAppsCount = comparisonResult.updatedAppsCount;
+
+    contentHTML += `
+      <div style="border: 1px solid #ccc; padding: 15px; margin: 15px 0; border-radius: 6px;">
+        <h3 style="margin-bottom: 8px;">🔹 <b>${data.name || filename}</b></h3>
+        <ul style="list-style: none; padding-left: 0; font-size: 15px;">
+          <li>📱 Tổng số ứng dụng: <b>${data.apps.length}</b></li>
+          <li>🆕 Ứng dụng mới: <b style="color: green;">${newAppsCount}</b></li>
+          <li>⬆️ Cập nhật: <b style="color: orange;">${updatedAppsCount}</b></li>
+          <li>❌ Bị xóa: <b style="color: red;">${removedAppsCount}</b></li>
+        </ul>
+        <button class="download-btn" data-index="${index}" style="margin-top: 10px;">✅ Tải xuống ${filename}</button>
+      </div>
+    `;
+  });
+
+  contentHTML += `</div><div style="text-align: right;"><button id="cancelDownload">❌ Đóng</button></div>`;
+
+  // Tạo Modal
+  const modal = document.createElement('div');
+  modal.id = 'comparisonModal';
+  modal.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 10;
+    display: flex; justify-content: center; align-items: center;
+  `;
+
+  const modalContent = document.createElement('div');
+  modalContent.style.cssText = `
+    background: white; padding: 20px; border-radius: 8px;
+    max-width: 600px; width: 90%; max-height: 90%; overflow-y: auto;
+    font-family: sans-serif;
+  `;
+  modalContent.innerHTML = contentHTML;
+
+  modal.appendChild(modalContent);
+  document.body.appendChild(modal);
+
+  // Gán sự kiện cho từng nút tải xuống
+  modal.querySelectorAll('.download-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const index = parseInt(btn.getAttribute('data-index'));
+      const { data, filename } = results[index];
+
+      if (filename === "repo.nabzclan.json") {
+        runTask('Nabzclan', 'NABZCLAN_TASK', 0, data);
+      } else if (filename === "repo.thuthuatjb.json") {
+        runTask('Thuthuatjb', 'THUTHUATJB_TASK', 0, data);
+      } else {
+        initiateDownload(data, filename);
+      }
+
+      //modal.remove();
+    });
+  });
+
+  // Đóng modal bằng phím Escape
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      modal.remove();
+    }
+  });
+
+  // Nút hủy
+  document.getElementById('cancelDownload').onclick = () => {
+    modal.remove();
+  };
+}
+
+
+function displayComparisonModal(dataToDownload, filename, result) {
+    const { newAppsCount, newAppsList, removedAppsCount, removedAppsList, updatedAppsCount, updatedAppsList } = result;
     
     // Xây dựng nội dung bảng thông báo HTML
     let contentHTML = `<h2 class="text-xl">Update ${dataToDownload.name || 'Dữ liệu mới'}</h2>`;
-    contentHTML += `<p>Phát hiện: <b>${dataToDownload.apps.length}</b> apps, trong đó <b>${newAppsCount}</b> ứng dụng mới và <b>${removedAppsCount}</b> ứng dụng bị xóa.</p>`;
+    contentHTML += `<p>Phát hiện: <b>${dataToDownload.apps.length}</b> apps, trong đó <b>${newAppsCount}</b> ứng dụng mới, <b>${removedAppsCount}</b> ứng dụng bị xóa và <b>${updatedAppsCount}</b> ứng dụng có bản update.</p>`;
         // Các nút Tải xuống/Hủy
     contentHTML += `
         <div>
@@ -319,6 +553,10 @@ function displayComparisonModal(dataToDownload, filename, result, loading) {
     removedAppsList.forEach(app => {
         contentHTML += `<tr class="removed-app"><td>➖ Bị xóa</td><td>${app.name}</td><td>${app.bundleIdentifier}</td></tr>`;
     });
+    // Liệt kê ứng dụng được update
+    updatedAppsList.forEach(app => {
+        contentHTML += `<tr class="new-app"><td>⬆️ Cập nhật</td><td>${app.name}</td><td>${app.bundleIdentifier}</td></tr>`;
+    });
 
     contentHTML += `
             </tbody>
@@ -339,10 +577,10 @@ function displayComparisonModal(dataToDownload, filename, result, loading) {
 
     // Xử lý sự kiện nút
     document.getElementById('confirmDownload').onclick = () => {
-        if(loading) {
-		runTask('Thuthuatjb', 'ASYNC_TASK', 0, dataToDownload);
-	}else initiateDownload(dataToDownload, filename);
-        modal.remove();
+	if(filename == "repo.nabzclan.json") runTask('Nabzclan', 'NABZCLAN_TASK', 0, dataToDownload);
+	else if(filename == "repo.thuthuatjb.json") runTask('Thuthuatjb', 'THUTHUATJB_TASK', 0, dataToDownload);
+	else initiateDownload(dataToDownload, filename);
+        //modal.remove();
     };
 
 document.addEventListener('keydown', (event) => {
