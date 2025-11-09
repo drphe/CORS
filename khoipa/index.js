@@ -94,6 +94,11 @@ async function fetchScreenshotsForAppsNab(apps, progressCallback) {// nabzclan
        const tasks = apps.map(async (app) => {
          const bundleId = app.bundleIdentifier;
          const url = `https://ipa.thuthuatjb.com/view/lookimg.php?id=${bundleId}`;
+	const nonsenUrl = [
+  		"https://ipa.thuthuatjb.com/view/img/repo-view.png",
+  		"https://ipa.thuthuatjb.com/view/img/repo-view-2.png",
+  		"https://ipa.thuthuatjb.com/view/img/repo-view-3.png"
+	];
          try {
            const response = await fetch(url);
            if (!response.ok) throw new Error(`Lỗi khi tải ${url}: ${response.status}`);
@@ -102,7 +107,7 @@ async function fetchScreenshotsForAppsNab(apps, progressCallback) {// nabzclan
              throw new Error(`Phản hồi không phải JSON từ ${url}`);
            }
            const json = await response.json();
-           app.screenshotURLs = json.screenshotUrls || [];
+           app.screenshotURLs=(json.screenshotUrls||[]).filter(s=>!nonsenUrl.includes(s));
            if (app.screenshotURLs.length > 0) {
              successCount++;
            } else {
@@ -292,7 +297,7 @@ repoConfigs.forEach(({ buttonId, url1, url2, filename }) => {
 });
 
 document.getElementById('button6')?.addEventListener("click", async () => { 
-   runTask("Check", "ALL_REPO", 3000, {});
+   runTask("Check", "ALL_REPO", 6000, {});
   const result = [];
   for (const { url1, url2, filename} of repoConfigs) {
     const re = await compareAndDownloadJSON(url1, url2, filename, false);
