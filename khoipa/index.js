@@ -419,7 +419,7 @@ async function compareAndDownloadJSON(url1,url2,filename = 'new_version.json',is
 
     const data1 = await res1.json();
     const data2 = await res2.json();
-
+    data2.sourceURL = url1;
     const data_new = consolidateApps(data2);
     const comparisonResult = compareAppLists(data1, data_new);
 
