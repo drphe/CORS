@@ -336,10 +336,8 @@ document.getElementById('button6')?.addEventListener("click", async () => {
   for (const { url1, url2, filename} of repoConfigs) {
     if(filename =="repo.buildstore.json") continue;
     const re = await compareAndDownloadJSON(url1, url2, filename, false);
-    result.push(re);
+    re&& result.push(re);
   }
-  overlay.classList.remove('active'); // Ẩn overlay
-  loadingTitle.textContent = 'Đang Xử Lý...'; // Reset tiêu đề
   displayComparisonModalMultiResult(result);
 });
 
@@ -464,9 +462,7 @@ async function compareAndDownloadJSON(url1,url2,filename = 'new_version.json',is
         filename,
         comparisonResult
       };
-    }
-
-    displayComparisonModal(data_new, filename, comparisonResult);
+    }else  displayComparisonModal(data_new, filename, comparisonResult);
   } catch (err) {
     console.error('Lỗi tải hoặc so sánh JSON:', err);
     alert('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng kiểm tra console.');
@@ -515,7 +511,8 @@ function displayComparisonModalMultiResult(results) {
     font-family: sans-serif;
   `;
   modalContent.innerHTML = contentHTML;
-
+  overlay.classList.remove('active'); // Ẩn overlay
+  loadingTitle.textContent = 'Đang Xử Lý...'; // Reset tiêu đề
   modal.appendChild(modalContent);
   document.body.appendChild(modal);
 
@@ -606,7 +603,7 @@ function displayComparisonModal(dataToDownload, filename, result) {
     // Tạo Modal (ví dụ đơn giản, bạn có thể thay thế bằng thư viện modal/dialog)
     const modal = document.createElement('div');
     modal.id = 'comparisonModal';
-    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1; display: flex; justify-content: center; align-items: center;';
     
     const modalContent = document.createElement('div');
     modalContent.style.cssText = 'background: white; padding: 20px; border-radius: 8px; max-width: 80%; max-height: 80%; overflow: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1);';
