@@ -1,3 +1,17 @@
+const jsonFile = {
+  "name": "Build Store",
+  "identifier": "io.build.store",
+  "subtitle": "BuildStore – safe and trustworthy app store for iOS",
+  "iconURL": "https://drphe.github.io/KhoIPA/icon/buildstore.png",
+  "website": "https://builds.io/explore",
+  "sourceURL": "https://drphe.github.io/KhoIPA/upload/repo.buildstore.json",
+  "tintColor": "b87d1a",
+  "featuredApps":[],
+  "apps": [],
+  "news": []
+}
+
+
      // Cấu hình Tailwind CSS để sử dụng Dark Mode dựa trên class 'dark'
      tailwind.config = {
        darkMode: 'class',
@@ -288,11 +302,31 @@ const repoConfigs = [
   { buttonId: 'button2', url1: 'https://drphe.github.io/KhoIPA/upload/repo.cypwn_ts.json', url2: 'https://ipa.cypwn.xyz/cypwn_ts.json', filename: 'repo.cypwn_ts.json' },
   { buttonId: 'button3', url1: 'https://drphe.github.io/KhoIPA/upload/repo.nabzclan.json', url2: 'https://appstore.nabzclan.vip/repos/altstore.php', filename: 'repo.nabzclan.json'},
   { buttonId: 'button4', url1: 'https://drphe.github.io/KhoIPA/upload/repo.thuthuatjb.json', url2: 'https://ipa.thuthuatjb.com/view/read.php', filename: 'repo.thuthuatjb.json' },
+  { buttonId: 'button7', url1: 'https://drphe.github.io/KhoIPA/upload/repo.buildstore.json', url2: 'https://ipa.thuthuatjb.com/view/read.php', filename: 'repo.buildstore.json' },
 ];
+
 
 repoConfigs.forEach(({ buttonId, url1, url2, filename }) => {
   document.getElementById(buttonId)?.addEventListener("click", () => {
-    compareAndDownloadJSON(url1, url2, filename);
+    if(buttonId == "button7") {
+       loadingTitle.textContent = `Đang xử lý: BuildStore`;
+       progressBar.style.width = '0%';
+       progressText.textContent = '0%';
+       overlay.classList.add('active'); // Hiện overlay
+       const updateProgressUI = (progress) => {
+         progressBar.style.width = `${progress}%`;
+         progressText.textContent = `${progress}%`;
+         if (progress >= 100) {
+           //console.log(`Tác vụ ${taskName} đã hoàn thành.`);
+           setTimeout(() => {
+             overlay.classList.remove('active'); // Ẩn overlay
+             loadingTitle.textContent = 'Đang Xử Lý...'; // Reset tiêu đề
+           }, 500);
+         }
+       };
+	mainBuildStore(updateProgressUI);
+    }
+    else compareAndDownloadJSON(url1, url2, filename);
   });
 });
 
@@ -300,6 +334,7 @@ document.getElementById('button6')?.addEventListener("click", async () => {
    runTask("Check", "ALL_REPO", 6000, {});
   const result = [];
   for (const { url1, url2, filename} of repoConfigs) {
+    if(filename =="repo.buildstore.json") continue;
     const re = await compareAndDownloadJSON(url1, url2, filename, false);
     result.push(re);
   }
@@ -609,9 +644,9 @@ document.addEventListener('keydown', (event) => {
   document.body.appendChild(input);
 
   // Khi click nút, kích hoạt chọn file
-  button.onclick = () => {
-    input.click();
-  };
+  //button.onclick = () => {
+ //   input.click();
+ // };
 
   input.onchange = async () => {
     const file = input.files[0];
@@ -652,3 +687,237 @@ document.addEventListener('keydown', (event) => {
     }
   };
 })();
+
+
+
+async function mainBuildStore(progressCallback) {
+    const apps = await getApplications();
+    if (!apps) return;
+
+    let allApp = apps.map(app => ({
+        beta: false,
+        name: app.name || "unknown",
+        type: app?.categories?.[0]?.slug === "games" ? 2 : 1,
+        bundleIdentifier: `${app?.categories?.[0]?.slug || "app"}.${app.slug}`,
+        developerName: "",
+        subtitle: app.categories[0].description || "",
+        localizedDescription: htmlToMarkdown(app.description || ""),
+        versionDescription: "",
+        tintColor: "FFC300",
+        iconURL: app.icon || "",
+        screenshotURLs: [],
+        versions: [],
+        URL: `https://builds.io/apps/${app?.categories?.[0]?.slug || "app"}/${app.slug || ""}`
+    }));
+
+  let successCount = 0;
+  let failureCount = 0;
+  let processedCount = 0;
+  const totalApps = allApp.length;
+
+    await Promise.all(allApp.map(async (app) => {
+        const results = await extractNextFData(app.URL);
+        if (!results || results.length < 1) return;
+
+        const target = results.find(r => typeof r.data === "string" && r.data.includes("appData"));
+        if (!target) return;
+
+        let obj;
+        processedCount++;
+        try {
+            obj = toJson(target.data);
+  	    successCount++;
+        } catch (e) {
+    	    failureCount++;
+            console.warn("JSON parse lỗi cho app", app.name);
+            return;
+        }
+
+        const appData = obj?.children?.[3]?.appData;
+        if (!appData) return;
+        app.developerName = appData?.developer?.name || "Unknown";
+        app.screenshotURLs = appData.images || [];
+        app.versions = transformArray(appData.versions || []);
+        app.iconURL= appData.icon || "";
+	if(appData.is_featured) jsonFile.featuredApps.push(app.bundleIdentifier);
+
+    if (app.versions.length > 10) {
+      app.versions = app.versions.slice(0, 10);
+    }
+
+    const progressPercentage = Math.min(100, Math.round((processedCount / totalApps) * 100));
+    progressCallback(progressPercentage);
+
+    if (processedCount % 10 === 0 || processedCount === totalApps) {
+      console.log(`📦 Đã xử lý ${processedCount}/${totalApps} ứng dụng...`);
+    }
+    }));
+
+    jsonFile.apps = allApp.filter(app => app.versions && app.versions.length > 0);;
+    downloadJSON(jsonFile, "repo.buildstore.json");
+
+}
+
+// ---------------------------------------------------------
+// Lấy danh sách ứng dụng từ API
+// ---------------------------------------------------------
+async function getApplications() {
+    const baseUrl = "https://ng-api.builds.io/api/v1/applications/?page=";
+    const pageSize = 1000;
+
+    try {
+        // Lấy trang đầu tiên
+        const res = await fetch(`${baseUrl}1&page_size=${pageSize}`);
+        if (!res.ok) throw new Error(res.status);
+        const json = await res.json();
+
+        let apps = [...json.data];
+        const total = json.count;
+
+        // Nếu tổng > 1000 thì lấy thêm page 2
+        if (total > 1000) {
+            const res2 = await fetch(`${baseUrl}2&page_size=${pageSize}`);
+            if (!res2.ok) throw new Error(res2.status);
+            const json2 = await res2.json();
+            apps = apps.concat(json2.data);
+        }
+
+        // Nếu tổng > 2000 thì lấy thêm page 3
+        if (total > 2000) {
+            const res3 = await fetch(`${baseUrl}3&page_size=${pageSize}`);
+            if (!res3.ok) throw new Error(res3.status);
+            const json3 = await res3.json();
+            apps = apps.concat(json3.data);
+        }
+
+        return apps;
+    } catch (e) {
+        console.error("API error", e);
+        return null;
+    }
+}
+
+// ---------------------------------------------------------
+// Trích xuất self.__next_f.push từ HTML build.io
+// ---------------------------------------------------------
+async function extractNextFData(url) {
+    const nextFData = [];
+    try {
+        const response = await fetch(url);
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const scripts = [...doc.querySelectorAll("script")];
+
+        // Regex linh hoạt hơn (không phụ thuộc \n)
+        const pushRegex = /self\.__next_f\.push\(\[(\d+),\s*"([\s\S]*?)"\]\)/g;
+
+        for (const s of scripts) {
+            const code = s.textContent;
+            if (!code.includes("self.__next_f.push")) continue;
+
+            let match;
+            while ((match = pushRegex.exec(code)) !== null) {
+                const id = parseInt(match[1]);
+                let raw = match[2];
+
+                // Xử lý escape
+                raw = raw.replace(/\\"/g, '"').replace(/\\n/g, '');
+
+                nextFData.push({ id, data: raw });
+            }
+        }
+        return nextFData;
+    } catch (err) {
+        console.error("HTML parse error", err);
+        return null;
+    }
+}
+
+function toJson(raw) {
+    // Bỏ escape rác thường thấy ở Next.js
+    let cleaned = raw.replace(/\\\\/g, "\\").replace(/\\"/g, '"');
+
+    let start = cleaned.indexOf("{");
+    if (start === -1) throw new Error("Không thấy dấu {");
+
+    let stack = 0;
+    for (let i = start; i < cleaned.length; i++) {
+        if (cleaned[i] === "{") stack++;
+        else if (cleaned[i] === "}") stack--;
+
+        if (stack === 0) {
+            const jsonText = cleaned.slice(start, i + 1);
+            return JSON.parse(jsonText);
+        }
+    }
+
+    throw new Error("Không tìm được JSON hoàn chỉnh!");
+}
+
+// ---------------------------------------------------------
+// Chuyển đổi danh sách version
+// ---------------------------------------------------------
+function transformArray(arr, overrides = {}) {
+    return arr.map(item => ({
+        version: overrides.version || item.version || "unknown",
+        date: overrides.date || item?.created_at?.split("T")[0] || "unknown",
+        size: overrides.size || item.ipa_size || 0,
+        downloadURL: overrides.downloadURL || item.ipa_url || "",
+        localizedDescription: overrides.localizedDescription || htmlToMarkdown(item.changelog || "No description")
+    }));
+}
+
+function downloadJSON(data, filename = "data.json") {
+   overlay.classList.remove('active'); // Ẩn overlay
+   loadingTitle.textContent = 'Đang Xử Lý...'; // Reset tiêu đề
+  // Chuyển đối tượng JS thành chuỗi JSON
+  const jsonStr = JSON.stringify(consolidateApps(data), null, 2);
+
+  // Tạo Blob từ chuỗi JSON
+  const blob = new Blob([jsonStr], { type: "application/json" });
+
+  // Tạo URL tạm cho Blob
+  const url = URL.createObjectURL(blob);
+
+  // Tạo thẻ <a> để tải xuống
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+
+  // Xóa thẻ <a> và URL tạm
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function htmlToMarkdown(html) {
+  return html
+    // Heading h1-h6
+    .replace(/<h1>(.*?)<\/h1>/gi, '# $1\n')
+    .replace(/<h2>(.*?)<\/h2>/gi, '## $1\n')
+    .replace(/<h3>(.*?)<\/h3>/gi, '### $1\n')
+    .replace(/<h4>(.*?)<\/h4>/gi, '#### $1\n')
+    .replace(/<h5>(.*?)<\/h5>/gi, '##### $1\n')
+    .replace(/<h6>(.*?)<\/h6>/gi, '###### $1\n')
+
+    // Bold & italic
+    .replace(/<b>(.*?)<\/b>/gi, '**$1**')
+    .replace(/<strong>(.*?)<\/strong>/gi, '**$1**')
+    .replace(/<i>(.*?)<\/i>/gi, '*$1*')
+    .replace(/<em>(.*?)<\/em>/gi, '*$1*')
+
+    // Horizontal rule
+    .replace(/<hr\s*\/?>/gi, '\n---\n')
+
+    // Paragraphs -> xuống dòng
+    .replace(/<p\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+
+    // Xóa thẻ dư thừa
+    .replace(/<[^>]+>/g, '') // bỏ các thẻ HTML còn lại
+    .replace(/\n{2,}/g, '\n') // gọn dòng trống
+    .trim();
+}
+
