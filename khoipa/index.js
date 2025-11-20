@@ -1,14 +1,53 @@
+const jsonData = {
+  "name": "Unkeyapp Store",
+  "identifier": "com.unkeyapp.store",
+  "subtitle": "Unkeyapp – kho ứng dụng bên thứ ba",
+   "description": "Unkeyapp - Kho ứng dụng bên thứ ba.",
+  "iconURL": "https://www.unkeyapp.com/_next/image?url=%2Ficon%2Flogo.png&w=256&q=75",
+  "website": "https://www.unkeyapp.com/app-store",
+  "sourceURL": "https://drphe.github.io/KhoIPA/upload/repo.unkeyapp.json",
+  "tintColor": "0cabeb",
+    "featuredApps": [],
+  "apps": [],
+  "news": [
+    {
+      "title": "Welcome to Unkeyapp Store Repo!",
+      "identifier": "unkeyapp.public.init",
+      "caption": "Tap to open our App Store",
+      "date": "2025-11-20",
+      "tintColor": "#0cabeb",
+      "imageURL": "https://i.ibb.co/QvX7bD4S/0b1bc7854fcf.png",
+      "notify": true,
+      "url": "https://www.unkeyapp.com/app-store",
+      "appID": null
+    }
+  ]
+}
+
 const jsonFile = {
     "name": "Build Store",
     "identifier": "io.build.store",
     "subtitle": "BuildStore – safe and trustworthy app store for iOS",
+    "description": "BuildStore – safe and trustworthy app store for iOS",
     "iconURL": "https://drphe.github.io/KhoIPA/icon/buildstore.png",
     "website": "https://builds.io/explore",
     "sourceURL": "https://drphe.github.io/KhoIPA/upload/repo.buildstore.json",
     "tintColor": "b87d1a",
     "featuredApps": [],
     "apps": [],
-    "news": []
+  "news": [
+    {
+      "title": "Welcome to Build Store Repo!",
+      "identifier": "buildstore.public.init",
+      "caption": "Tap to open our App Store",
+      "date": "2025-11-181",
+      "tintColor": "#b87d1a",
+      "imageURL": "https://i.ibb.co/RGYXPnhj/4b56f7615d11.png",
+      "notify": true,
+      "url": "https://builds.io/explore",
+      "appID": null
+    }
+  ]
 }
 tailwind.config = {
     darkMode: 'class',
@@ -295,16 +334,21 @@ const repoConfigs = [{
 }, {
     buttonId: 'button7',
     url1: 'https://drphe.github.io/KhoIPA/upload/repo.buildstore.json',
-    url2: 'https://ipa.thuthuatjb.com/view/read.php',
+    url2: '',
     filename: 'repo.buildstore.json'
-}, ];
+}, {
+    buttonId: 'button8',
+    url1: 'https://drphe.github.io/KhoIPA/upload/repo.unkeyapp.json',
+    url2: '',
+    filename: 'repo.unkeyapp.json'
+}];
 repoConfigs.forEach(({
     buttonId,
     url1,
     url2,
     filename
 }) => {
-    document.getElementById(buttonId)?.addEventListener("click", () => {
+    document.getElementById(buttonId)?.addEventListener("click", async () => {
         if (buttonId == "button7") {
             loadingTitle.textContent = `Đang xử lý: BuildStore`;
             progressBar.style.width = '0%';
@@ -322,11 +366,18 @@ repoConfigs.forEach(({
                 }
             };
             mainBuildStore(updateProgressUI);
-        } else compareAndDownloadJSON(url1, url2, filename);
+        }else if(buttonId == "button8"){
+    	progressBar.style.width = '0%';
+    	progressText.textContent = '0%';
+                runTask("Check", "ALL_REPO", 60000, {});
+	await fetchAndProcessApps(1, 30000).then(() => {
+        	downloadJSON(jsonData, "repo.unkeyapp.json");
+    	});
+	}else compareAndDownloadJSON(url1, url2, filename);
     });
 });
 document.getElementById('button6')?.addEventListener("click", async () => {
-    runTask("Check", "ALL_REPO", 6000, {});
+    runTask("Check", "ALL_REPO", 12000, {});
     const result = [];
     for (const {
             url1,
@@ -334,7 +385,7 @@ document.getElementById('button6')?.addEventListener("click", async () => {
             filename
         }
         of repoConfigs) {
-        if (filename == "repo.buildstore.json") continue;
+        if (filename == "repo.buildstore.json" || filename == "repo.unkeyapp.json") continue;
         const re = await compareAndDownloadJSON(url1, url2, filename, false);
         re && result.push(re);
     }
@@ -607,6 +658,9 @@ function displayComparisonModal(dataToDownload, filename, result) {
         modal.remove();
     };
 }
+///////////////
+////////Upload image
+////////////////////
 (() => {
     const button = document.getElementById('button5');
     // Tạo input file ẩn
@@ -616,9 +670,9 @@ function displayComparisonModal(dataToDownload, filename, result) {
     input.style.display = 'none';
     document.body.appendChild(input);
     // Khi click nút, kích hoạt chọn file
-    //button.onclick = () => {
-    //   input.click();
-    // };
+    button.onclick = () => {
+       input.click();
+    };
     input.onchange = async () => {
         const file = input.files[0];
         if (!file) return console.log('Chưa chọn ảnh.');
@@ -654,6 +708,64 @@ function displayComparisonModal(dataToDownload, filename, result) {
         }
     };
 })();
+////////////////////
+////unkey app store
+//////////////////
+function convertAppStructure(sourceApp) {
+    const updatedAt = new Date(sourceApp.updatedAt);
+    const versionDate = updatedAt.toISOString().split('T')[0]; // YYYY-MM-DD
+    return {
+        "beta":false,
+        "name": sourceApp.name,
+        "type": 1, // Giá trị mặc định
+        "bundleIdentifier": sourceApp.bundlerId, // Tương tự bundlerId
+        "version": sourceApp.version,
+        "size": sourceApp.fileSize||0,
+        "downloadURL": sourceApp.ipaLink,   // Sử dụng ipaLink
+        "iconURL": sourceApp.logo||"",          // Sử dụng logo
+        "versionDate": versionDate,
+        "tintColor": "0cabeb",
+    	"screenshotURLs": sourceApp.screenshots ||[],
+	"localizedDescription": sourceApp.addDescription ||"",
+        "developerName": "Unkeyapp", // Mặc định là chuỗi rỗng
+        "subtitle": sourceApp.addDescription||"",
+
+    };
+}
+
+async function fetchAndProcessApps(page = 1, pageSize = 5) {
+    const url = `https://api.unkeyapp.com/v1/application?page=${page}&pageSize=${pageSize}`;
+    
+    try {
+      
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
+        }
+        const jsonResponse = await response.json();
+        if (jsonResponse.code !== 200 || !jsonResponse.data || !Array.isArray(jsonResponse.data.data)) {
+            console.error("Dữ liệu API không hợp lệ hoặc code không phải 200:", jsonResponse);
+            return;
+        }
+        const appDataList = jsonResponse.data.data;
+        console.log(`Đã lấy thành công ${appDataList.length} ứng dụng.`);
+        
+        const convertedApps = appDataList.map(app => {
+            if (app.bundlerId && app.ipaLink) {
+                return convertAppStructure(app);
+            }
+            return null;
+        }).filter(app => app !== null);
+        jsonData.apps = convertedApps;
+
+    } catch (error) {
+        console.error("Lỗi khi lấy hoặc xử lý dữ liệu ứng dụng:", error.message);
+    }
+}
+
+///////////////
+/////////Build Store
+//////////////
 async function mainBuildStore(progressCallback) {
     const apps = await getApplications();
     if (!apps) return;
