@@ -1,29 +1,26 @@
 const jsonData = {
-  "name": "Unkeyapp Store",
-  "identifier": "com.unkeyapp.store",
-  "subtitle": "Unkeyapp – kho ứng dụng bên thứ ba",
-   "description": "Unkeyapp - Kho ứng dụng bên thứ ba.",
-  "iconURL": "https://www.unkeyapp.com/_next/image?url=%2Ficon%2Flogo.png&w=256&q=75",
-  "website": "https://www.unkeyapp.com/app-store",
-  "sourceURL": "https://drphe.github.io/KhoIPA/upload/repo.unkeyapp.json",
-  "tintColor": "0cabeb",
+    "name": "Unkeyapp Store",
+    "identifier": "com.unkeyapp.store",
+    "subtitle": "Unkeyapp – kho ứng dụng bên thứ ba",
+    "description": "Unkeyapp - Kho ứng dụng bên thứ ba.",
+    "iconURL": "https://www.unkeyapp.com/_next/image?url=%2Ficon%2Flogo.png&w=256&q=75",
+    "website": "https://www.unkeyapp.com/app-store",
+    "sourceURL": "https://drphe.github.io/KhoIPA/upload/repo.unkeyapp.json",
+    "tintColor": "0cabeb",
     "featuredApps": [],
-  "apps": [],
-  "news": [
-    {
-      "title": "Welcome to Unkeyapp Store Repo!",
-      "identifier": "unkeyapp.public.init",
-      "caption": "Tap to open our App Store",
-      "date": "2025-11-20",
-      "tintColor": "#0cabeb",
-      "imageURL": "https://i.ibb.co/QvX7bD4S/0b1bc7854fcf.png",
-      "notify": true,
-      "url": "https://www.unkeyapp.com/app-store",
-      "appID": null
-    }
-  ]
+    "apps": [],
+    "news": [{
+        "title": "Welcome to Unkeyapp Store Repo!",
+        "identifier": "unkeyapp.public.init",
+        "caption": "Tap to open our App Store",
+        "date": "2025-11-20",
+        "tintColor": "#0cabeb",
+        "imageURL": "https://i.ibb.co/QvX7bD4S/0b1bc7854fcf.png",
+        "notify": true,
+        "url": "https://www.unkeyapp.com/app-store",
+        "appID": null
+    }]
 }
-
 const jsonFile = {
     "name": "Build Store",
     "identifier": "io.build.store",
@@ -35,23 +32,32 @@ const jsonFile = {
     "tintColor": "b87d1a",
     "featuredApps": [],
     "apps": [],
-  "news": [
-    {
-      "title": "Welcome to Build Store Repo!",
-      "identifier": "buildstore.public.init",
-      "caption": "Tap to open our App Store",
-      "date": "2025-11-181",
-      "tintColor": "#b87d1a",
-      "imageURL": "https://i.ibb.co/RGYXPnhj/4b56f7615d11.png",
-      "notify": true,
-      "url": "https://builds.io/explore",
-      "appID": null
-    }
-  ]
+    "news": [{
+        "title": "Welcome to Build Store Repo!",
+        "identifier": "buildstore.public.init",
+        "caption": "Tap to open our App Store",
+        "date": "2025-11-18",
+        "tintColor": "#b87d1a",
+        "imageURL": "https://i.ibb.co/RGYXPnhj/4b56f7615d11.png",
+        "notify": true,
+        "url": "https://builds.io/explore",
+        "appID": null
+    }]
 }
 tailwind.config = {
     darkMode: 'class',
 }
+let lastconsole = "";
+const popupConsole = document.getElementById("console");
+const originalLog = console.log;
+console.log = function(...args) {
+    originalLog.apply(console, args);
+    const line = document.createElement("div");
+    lastconsole = args.join(" ");
+    line.textContent = args.join(" ");
+    popupConsole.appendChild(line);
+    popupConsole.scrollTop = popupConsole.scrollHeight;
+};
 const overlay = document.getElementById('loading-overlay');
 const progressBar = document.getElementById('progress-bar');
 const progressText = document.getElementById('progress-text');
@@ -113,10 +119,9 @@ async function fetchScreenshotsForAppsNab(apps, progressCallback) { // nabzclan
     });
     // Chờ tất cả các tác vụ song song hoàn thành
     await Promise.all(tasks);
-    console.log(`✅ Ảnh lấy thành công: ${successCount}`);
-    console.log(`❌ Ảnh không lấy được: ${failureCount}`);
+    console.log(`✅ Ảnh lấy thành công: ${successCount} \n❌ Ảnh không lấy được: ${failureCount}`);
     // Đảm bảo tiến trình đạt 100% khi tất cả đã hoàn thành
-    progressCallback(100);
+    //progressCallback(100);
 }
 async function fetchScreenshotsForAppsThuthuatjb(apps, progressCallback) { // thuthuatjb
     let successCount = 0;
@@ -157,10 +162,9 @@ async function fetchScreenshotsForAppsThuthuatjb(apps, progressCallback) { // th
     });
     // Chờ tất cả các tác vụ song song hoàn thành
     await Promise.all(tasks);
-    console.log(`✅ Ảnh lấy thành công: ${successCount}`);
-    console.log(`❌ Ảnh không lấy được: ${failureCount}`);
+    console.log(`✅ Ảnh lấy thành công: ${successCount} \n❌ Ảnh không lấy được: ${failureCount}`);
     // Đảm bảo tiến trình đạt 100% khi tất cả đã hoàn thành
-    progressCallback(100);
+    //progressCallback(100);
 }
 
 function runTask(taskName, taskType, durationMs, data) {
@@ -172,6 +176,7 @@ function runTask(taskName, taskType, durationMs, data) {
     progressBar.style.width = '0%';
     progressText.textContent = '0%';
     overlay.classList.add('active'); // Hiện overlay
+    popupConsole.innerHTML = "";
     const updateProgressUI = (progress) => {
         progressBar.style.width = `${progress}%`;
         progressText.textContent = `${progress}%`;
@@ -183,6 +188,7 @@ function runTask(taskName, taskType, durationMs, data) {
             }, 500);
         }
     };
+    console.log("Bắt đầu...")
     if (taskType === 'THUTHUATJB_TASK') {
         mainThuthuatjb(updateProgressUI, data)
     } else if (taskType === 'NABZCLAN_TASK') {
@@ -206,7 +212,12 @@ async function mainThuthuatjb(updateProgressUI, source) { // lấy dữ liệu t
     console.log(`Bắt đầu lấy ảnh chụp màn hình cho ${source.apps.length} ứng dụng...`);
     await fetchScreenshotsForAppsThuthuatjb(source.apps, updateProgressUI);
     const fileName = "repo.thuthuatjb.json";
-    initiateDownload(source, fileName);
+    if (confirm(lastconsole)) {
+        initiateDownload(source, fileName);
+        progressCallback(100);
+    } else {
+        console.log("Đã hủy thao tác.");
+    }
 }
 async function mainNab(updateProgressUI, source) { // lấy dữ liệu từ trang thuthuatjb
     if (!source.apps || !Array.isArray(source.apps)) {
@@ -215,7 +226,12 @@ async function mainNab(updateProgressUI, source) { // lấy dữ liệu từ tra
     console.log(`Bắt đầu lấy ảnh chụp màn hình cho ${source.apps.length} ứng dụng...`);
     await fetchScreenshotsForAppsNab(source.apps, updateProgressUI);
     const fileName = "repo.nabzclan.json";
-    initiateDownload(source, fileName);
+    if (confirm(lastconsole)) {
+        initiateDownload(source, fileName);
+        progressCallback(100);
+    } else {
+        console.log("Đã hủy thao tác.");
+    }
 }
 
 function consolidateApps(source) { // sắp xếp lại dữ liệu
@@ -252,7 +268,7 @@ function consolidateApps(source) { // sắp xếp lại dữ liệu
                 bundleIdentifier: app.bundleIdentifier,
                 developerName: app.developerName ?? "",
                 subtitle: app.subtitle ?? "",
-                localizedDescription: app.localizedDescription ?? "",
+                localizedDescription: app.localizedDescription ?? "Ứng dụng bên ngoài AppleStore",
                 versionDescription: app.versionDescription ?? "",
                 tintColor: app.tintColor ?? "00adef",
                 iconURL: app.iconURL ?? "./common/assets/img/generic_app.jpeg",
@@ -354,6 +370,7 @@ repoConfigs.forEach(({
             progressBar.style.width = '0%';
             progressText.textContent = '0%';
             overlay.classList.add('active'); // Hiện overlay
+            popupConsole.innerHTML = "";
             const updateProgressUI = (progress) => {
                 progressBar.style.width = `${progress}%`;
                 progressText.textContent = `${progress}%`;
@@ -365,19 +382,75 @@ repoConfigs.forEach(({
                     }, 500);
                 }
             };
+            console.log("Bắt đầu...")
             mainBuildStore(updateProgressUI);
-        }else if(buttonId == "button8"){
-    	progressBar.style.width = '0%';
-    	progressText.textContent = '0%';
-                runTask("Check", "ALL_REPO", 60000, {});
-	await fetchAndProcessApps(1, 30000).then(() => {
-        	downloadJSON(jsonData, "repo.unkeyapp.json");
-    	});
-	}else compareAndDownloadJSON(url1, url2, filename);
+        } else if (buttonId == "button8") {
+            console.log("Bắt đầu...");
+            loadingTitle.textContent = `Đang xử lý: Unkeyapp`;
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%';
+            overlay.classList.add('active'); // Hiện overlay
+            popupConsole.innerHTML = "";
+            const updateProgressUI = (progress) => {
+                progressBar.style.width = `${progress}%`;
+                progressText.textContent = `${progress}%`;
+                if (progress >= 100) {
+                    //console.log(`Tác vụ ${taskName} đã hoàn thành.`);
+                    setTimeout(() => {
+                        overlay.classList.remove('active'); // Ẩn overlay
+                        loadingTitle.textContent = 'Đang Xử Lý...'; // Reset tiêu đề
+                    }, 500);
+                }
+            };
+            const pageSize = 300;
+            const total = 12000;
+            let processedCount = 0;
+            let successCount = 0;
+            jsonData.apps = [];
+            const totalPage = Math.ceil(total / pageSize);
+            console.log("Bắt đầu lấy danh sách app...")
+            console.log(`Dự kiến ${totalPage} lệnh get...`)
+            for (let page = 1; page <= totalPage; page++) {
+                try {
+                    await fetchAndProcessApps(page, pageSize);
+                    successCount++;
+                } catch (e) {}
+                processedCount++;
+                const progressPercentage = Math.min(100, Math.round((processedCount / totalPage) * 100));
+                updateProgressUI(progressPercentage)
+                console.log(`📦 Đã xử lý ${processedCount}/${totalPage} lệnh get...`);
+            }
+            console.log(`✅ Lệnh thành công: ${successCount} \n ❌ Lệnh không lấy được: ${processedCount-successCount}`);
+            console.log(`📦 Tổng số ${jsonData.apps.length} app \n OK để tải xuống.`);
+            if (confirm(lastconsole)) {
+                downloadJSON(jsonData, "repo.unkeyapp.json");
+            } else {
+                console.log("Đã hủy thao tác.");
+            }
+        } else compareAndDownloadJSON(url1, url2, filename);
     });
 });
 document.getElementById('button6')?.addEventListener("click", async () => {
-    runTask("Check", "ALL_REPO", 12000, {});
+    console.log("Bắt đầu...");
+    loadingTitle.textContent = `Đang xử lý: Check All repo`;
+    progressBar.style.width = '0%';
+    progressText.textContent = '0%';
+    overlay.classList.add('active'); // Hiện overlay
+    popupConsole.innerHTML = "";
+    const updateProgressUI = (progress) => {
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${progress}%`;
+        if (progress >= 100) {
+            //console.log(`Tác vụ ${taskName} đã hoàn thành.`);
+            setTimeout(() => {
+                overlay.classList.remove('active'); // Ẩn overlay
+                loadingTitle.textContent = 'Đang Xử Lý...'; // Reset tiêu đề
+            }, 500);
+        }
+    };
+    let processedCount = 0;
+    let successCount = 0;
+    let tong = 4;
     const result = [];
     for (const {
             url1,
@@ -386,8 +459,15 @@ document.getElementById('button6')?.addEventListener("click", async () => {
         }
         of repoConfigs) {
         if (filename == "repo.buildstore.json" || filename == "repo.unkeyapp.json") continue;
-        const re = await compareAndDownloadJSON(url1, url2, filename, false);
-        re && result.push(re);
+        processedCount++;
+        try {
+            const re = await compareAndDownloadJSON(url1, url2, filename, false);
+            re && result.push(re);
+            successCount++;
+        } catch (e) {}
+        const progressPercentage = Math.min(100, Math.round((processedCount / tong) * 100));
+        updateProgressUI(progressPercentage)
+        console.log(`📦 Đã xử lý ${processedCount}/${tong} nguồn repo...`);
     }
     displayComparisonModalMultiResult(result);
 });
@@ -482,6 +562,7 @@ function initiateDownload(data, filename) {
 }
 async function compareAndDownloadJSON(url1, url2, filename = 'new_version.json', isDisplay = true) {
     try {
+        console.log("Bắt đầu fetch Json " + filename.split(".")[1])
         const [res1, res2] = await Promise.all([fetch(url1), fetch(url2)]);
         if (!res1.ok || !res2.ok) {
             throw new Error(`Lỗi HTTP: ${res1.status} hoặc ${res2.status}`);
@@ -492,6 +573,7 @@ async function compareAndDownloadJSON(url1, url2, filename = 'new_version.json',
         const data_new = consolidateApps(data2);
         const comparisonResult = compareAppLists(data1, data_new);
         if (!isDisplay) {
+            console.log(`${filename.split(".")[1]} OK`);
             return {
                 data: data_new,
                 filename,
@@ -499,7 +581,7 @@ async function compareAndDownloadJSON(url1, url2, filename = 'new_version.json',
             };
         } else displayComparisonModal(data_new, filename, comparisonResult);
     } catch (err) {
-        console.error('Lỗi tải hoặc so sánh JSON:', err);
+        console.log('Lỗi tải hoặc so sánh JSON:', err);
         alert('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng kiểm tra console.');
     }
 }
@@ -546,6 +628,7 @@ function displayComparisonModalMultiResult(results) {
   `;
     modalContent.innerHTML = contentHTML;
     overlay.classList.remove('active'); // Ẩn overlay
+    popupConsole.innerHTML = "";
     loadingTitle.textContent = 'Đang Xử Lý...'; // Reset tiêu đề
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
@@ -671,7 +754,7 @@ function displayComparisonModal(dataToDownload, filename, result) {
     document.body.appendChild(input);
     // Khi click nút, kích hoạt chọn file
     button.onclick = () => {
-       input.click();
+        input.click();
     };
     input.onchange = async () => {
         const file = input.files[0];
@@ -715,29 +798,25 @@ function convertAppStructure(sourceApp) {
     const updatedAt = new Date(sourceApp.updatedAt);
     const versionDate = updatedAt.toISOString().split('T')[0]; // YYYY-MM-DD
     return {
-        "beta":false,
+        "beta": false,
         "name": sourceApp.name,
         "type": 1, // Giá trị mặc định
         "bundleIdentifier": sourceApp.bundlerId, // Tương tự bundlerId
         "version": sourceApp.version,
-        "size": sourceApp.fileSize||0,
-        "downloadURL": sourceApp.ipaLink,   // Sử dụng ipaLink
-        "iconURL": sourceApp.logo||"",          // Sử dụng logo
+        "size": sourceApp.fileSize || 0,
+        "downloadURL": sourceApp.ipaLink, // Sử dụng ipaLink
+        "iconURL": sourceApp.logo || "", // Sử dụng logo
         "versionDate": versionDate,
         "tintColor": "0cabeb",
-    	"screenshotURLs": sourceApp.screenshots ||[],
-	"localizedDescription": sourceApp.addDescription ||"",
+        "screenshotURLs": sourceApp.screenshots || [],
+        "localizedDescription": sourceApp.addDescription || "Ứng dụng bên ngoài AppleStore",
         "developerName": "Unkeyapp", // Mặc định là chuỗi rỗng
-        "subtitle": sourceApp.addDescription||"",
-
+        "subtitle": sourceApp.addDescription || "",
     };
 }
-
 async function fetchAndProcessApps(page = 1, pageSize = 5) {
     const url = `https://api.unkeyapp.com/v1/application?page=${page}&pageSize=${pageSize}`;
-    
     try {
-      
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
@@ -748,27 +827,25 @@ async function fetchAndProcessApps(page = 1, pageSize = 5) {
             return;
         }
         const appDataList = jsonResponse.data.data;
-        console.log(`Đã lấy thành công ${appDataList.length} ứng dụng.`);
-        
         const convertedApps = appDataList.map(app => {
             if (app.bundlerId && app.ipaLink) {
                 return convertAppStructure(app);
             }
             return null;
         }).filter(app => app !== null);
-        jsonData.apps = convertedApps;
-
+        jsonData.apps.push(...convertedApps);
+        console.log(`Đã lấy thành công ${jsonData.apps.length} ứng dụng.`);
     } catch (error) {
         console.error("Lỗi khi lấy hoặc xử lý dữ liệu ứng dụng:", error.message);
     }
 }
-
 ///////////////
 /////////Build Store
 //////////////
 async function mainBuildStore(progressCallback) {
     const apps = await getApplications();
     if (!apps) return;
+    console.log("Lấy thông tin từng app...")
     let allApp = apps.map(app => ({
         beta: false,
         name: app.name || "unknown",
@@ -798,10 +875,14 @@ async function mainBuildStore(progressCallback) {
     let failureCount = 0;
     let processedCount = 0;
     await processAppsInBatches(allApp);
-    console.log(`✅ App lấy thành công: ${successCount}`);
-    console.log(`❌ App không lấy được: ${failureCount}`);
-    jsonFile.apps = allApp.filter(app => app.versions && app.versions.length > 0);;
-    downloadJSON(jsonFile, "repo.buildstore.json");
+    console.log(`✅ App lấy thành công: ${successCount} \n ❌ App không lấy được: ${failureCount}`);
+    jsonFile.apps = allApp.filter(app => app.versions && app.versions.length > 0);
+    console.log(`Tổng số ${allApp.length} apps.\n OK để tải xuống. `);
+    if (confirm(lastconsole)) {
+        downloadJSON(jsonFile, "repo.buildstore.json");
+    } else {
+        console.log("Đã hủy thao tác.");
+    }
     async function processAppsInBatches(allApp) {
         const BATCH_SIZE = 300;
         const totalApps = allApp.length;
@@ -845,6 +926,7 @@ async function mainBuildStore(progressCallback) {
 // Lấy danh sách ứng dụng từ API
 // ---------------------------------------------------------
 async function getApplications() {
+    console.log("Lấy danh sách App từ Builds.io...")
     const baseUrl = "https://ng-api.builds.io/api/v1/applications/?page=";
     const pageSize = 1000;
     try {
@@ -868,6 +950,7 @@ async function getApplications() {
             const json3 = await res3.json();
             apps = apps.concat(json3.data);
         }
+        console.log("Lấy danh sách thành công...")
         return apps;
     } catch (e) {
         console.error("API error", e);
@@ -956,6 +1039,7 @@ function transformArray(arr, overrides = {}) {
 
 function downloadJSON(data, filename = "data.json") {
     overlay.classList.remove('active'); // Ẩn overlay
+    popupConsole.innerHTML = "";
     loadingTitle.textContent = 'Đang Xử Lý...'; // Reset tiêu đề
     // Chuyển đối tượng JS thành chuỗi JSON
     const jsonStr = JSON.stringify(consolidateApps(data), null, 2);
@@ -979,12 +1063,11 @@ function downloadJSON(data, filename = "data.json") {
 function htmlToMarkdown(html) {
     return html
         // Heading h1-h6
-        .replace(/<h1>(.*?)<\/h1>/gi, '# $1\n').replace(/<h2>(.*?)<\/h2>/gi, '## $1\n')
-	.replace(/<h3>(.*?)<\/h3>/gi, '### $1\n').replace(/<h4>(.*?)<\/h4>/gi, '#### $1\n')
-	.replace(/<h5>(.*?)<\/h5>/gi, '##### $1\n').replace(/<h6>(.*?)<\/h6>/gi, '###### $1\n')
+        .replace(/<h1>(.*?)<\/h1>/gi, '# $1\n').replace(/<h2>(.*?)<\/h2>/gi, '## $1\n').replace(/<h3>(.*?)<\/h3>/gi, '### $1\n')
+	.replace(/<h4>(.*?)<\/h4>/gi, '#### $1\n').replace(/<h5>(.*?)<\/h5>/gi, '##### $1\n').replace(/<h6>(.*?)<\/h6>/gi, '###### $1\n')
         // Bold & italic
-        .replace(/<b>(.*?)<\/b>/gi, '**$1**').replace(/<strong>(.*?)<\/strong>/gi, '**$1**')
-	.replace(/<i>(.*?)<\/i>/gi, '*$1*').replace(/<em>(.*?)<\/em>/gi, '*$1*')
+        .replace(/<b>(.*?)<\/b>/gi, '**$1**').replace(/<strong>(.*?)<\/strong>/gi, '**$1**').replace(/<i>(.*?)<\/i>/gi, '*$1*')
+	.replace(/<em>(.*?)<\/em>/gi, '*$1*')
         // Horizontal rule
         .replace(/<hr\s*\/?>/gi, '\n---\n')
         // Paragraphs -> xuống dòng
