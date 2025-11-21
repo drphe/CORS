@@ -450,7 +450,7 @@ document.getElementById('button6')?.addEventListener("click", async () => {
     };
     let processedCount = 0;
     let successCount = 0;
-    let tong = 4;
+    let tong = 6;
     const result = [];
     for (const {
             url1,
@@ -458,7 +458,6 @@ document.getElementById('button6')?.addEventListener("click", async () => {
             filename
         }
         of repoConfigs) {
-        if (filename == "repo.buildstore.json" || filename == "repo.unkeyapp.json") continue;
         processedCount++;
         try {
             const re = await compareAndDownloadJSON(url1, url2, filename, false);
@@ -469,6 +468,7 @@ document.getElementById('button6')?.addEventListener("click", async () => {
         updateProgressUI(progressPercentage)
         console.log(`📦 Đã xử lý ${processedCount}/${tong} nguồn repo...`);
     }
+
     displayComparisonModalMultiResult(result);
 });
 
@@ -562,7 +562,24 @@ function initiateDownload(data, filename) {
 }
 async function compareAndDownloadJSON(url1, url2, filename = 'new_version.json', isDisplay = true) {
     try {
-        console.log("Bắt đầu fetch Json " + filename.split(".")[1])
+        console.log("Bắt đầu fetch Json " + filename.split(".")[1]);
+	if(filename =="repo.unkeyapp.json"){
+    	    const [data_new, comparisonResult] = await getUpdateUnkeyapp();
+            return {
+                data: data_new,
+                filename,
+                comparisonResult
+            };
+	}
+	if(filename =="repo.buildstore.json"){
+    	    const [data_new, comparisonResult] = await getUpdateBuildStore();
+            return {
+                data: data_new,
+                filename,
+                comparisonResult
+            };
+	}
+
         const [res1, res2] = await Promise.all([fetch(url1), fetch(url2)]);
         if (!res1.ok || !res2.ok) {
             throw new Error(`Lỗi HTTP: ${res1.status} hoặc ${res2.status}`);
@@ -588,8 +605,7 @@ async function compareAndDownloadJSON(url1, url2, filename = 'new_version.json',
 
 function displayComparisonModalMultiResult(results) {
     let contentHTML = `<h2 class="text-xl">📦 Tổng quan cập nhật các Repo</h2><div style="  display: grid;
-  grid-template-columns: 1fr 1fr; /* 2 cột */
-  gap: 10px;">`;
+  grid-template-columns: 1fr 1fr;">`;
     results.forEach(({
         data,
         filename,
@@ -603,9 +619,7 @@ function displayComparisonModalMultiResult(results) {
         <h3 style="margin-bottom: 8px;">🔹 <b>${data.name || filename}</b></h3>
         <ul style="list-style: none; padding-left: 0; font-size: 15px;">
           <li>📱 Tổng số ứng dụng: <b>${data.apps.length}</b></li>
-          <li>🆕 Ứng dụng mới: <b style="color: green;">${newAppsCount}</b></li>
-          <li>⬆️ Cập nhật: <b style="color: orange;">${updatedAppsCount}</b></li>
-          <li>❌ Bị xóa: <b style="color: red;">${removedAppsCount}</b></li>
+          <li>📦 Thống kê: <b style="color: green;">${newAppsCount}</b>/<b style="color: orange;">${updatedAppsCount}</b>/<b style="color: red;">${removedAppsCount}</b></li>
         </ul>
         <button class="download-btn" data-index="${index}" style="margin-top: 10px;">✅ Tải xuống ${filename}</button>
       </div>
@@ -845,12 +859,12 @@ async function fetchAndProcessApps(page = 1, pageSize = 5) {
 async function mainBuildStore(progressCallback) {
     const apps = await getApplications();
     if (!apps) return;
-    console.log("Lấy thông tin từng app...")
+
     let allApp = apps.map(app => ({
         beta: false,
         name: app.name || "unknown",
         type: getValue(app?.categories?.[0]?.slug),
-        bundleIdentifier: `${app?.categories?.[0]?.slug || "app"}.${app.slug}`,
+        bundleIdentifier: `${app?.categories?.[0]?.slug || "app"}.${app.slug}`.replace(/_/g, '-'),
         developerName: "",
         subtitle: app.categories[0].description || "",
         localizedDescription: htmlToMarkdown(app.description || ""),
@@ -862,15 +876,7 @@ async function mainBuildStore(progressCallback) {
         URL: `https://builds.io/apps/${app?.categories?.[0]?.slug || "app"}/${app.slug || ""}`
     }));
 
-    function getValue(key) {
-        const map = {
-            "games": 2,
-            "ipa_builds": 4,
-            "music-audio": 3,
-            "emulators": 4
-        };
-        return map[key] || 1; // nếu không khớp thì trả về 1
-    }
+    console.log("Lấy thông tin từng app...");
     let successCount = 0;
     let failureCount = 0;
     let processedCount = 0;
@@ -922,12 +928,21 @@ async function mainBuildStore(progressCallback) {
         }
     }
 }
+    function getValue(key) {
+        const map = {
+            "games": 2,
+            "ipa_builds": 4,
+            "music-audio": 3,
+            "emulators": 4
+        };
+        return map[key] || 1; // nếu không khớp thì trả về 1
+    }
 // ---------------------------------------------------------
 // Lấy danh sách ứng dụng từ API
 // ---------------------------------------------------------
 async function getApplications() {
     console.log("Lấy danh sách App từ Builds.io...")
-    const baseUrl = "https://ng-api.builds.io/api/v1/applications/?page=";
+    const baseUrl = "https://ng-api.builds.io/api/v1/applications/?sort=updated_at&page=";
     const pageSize = 1000;
     try {
         // Lấy trang đầu tiên
@@ -1077,3 +1092,158 @@ function htmlToMarkdown(html) {
         .replace(/\n{2,}/g, '\n') // gọn dòng trống
         .trim();
 }
+
+async function getUpdateUnkeyapp() {
+	console.log("Lấy dữ liệu mới nhất")
+    const results = await extractNextFData('https://www.unkeyapp.com/app-store/category?page=1');
+    const filteredData = results.filter(item => item.data && item.data.includes("dataApp"));
+    let Data = filteredData[0].data;
+    try {
+        const endA = JSON.parse(extractDataApp(Data));
+        const appDataList = endA.dataApp.data;
+        const convertedApps = appDataList.map(app => {
+            if (app.bundlerId && app.ipaLink) {
+                return convertAppStructure(app);
+            }
+            return null;
+        }).filter(app => app !== null);
+        //console.log(convertedApps);
+        console.log("Lấy file cũ để update");
+        const oldres = await fetch("https://drphe.github.io/KhoIPA/upload/repo.unkeyapp.json");
+        const oldJson = await oldres.json();
+	const sosanh =  {
+            newAppsCount: 0,
+            newAppsList: [],
+            removedAppsCount: 0,
+            removedAppsList: [],
+            updatedAppsCount: 0,
+            updatedAppsList: []
+        };
+        convertedApps.forEach(app => {
+            const data = oldJson.apps.find(j => j.bundleIdentifier == app.bundleIdentifier);
+            if (data) {
+                const isver = data.versions.find(v => v.version == app.version);
+                if (isver) return;
+                data.versions.push({
+                    "version": app.version,
+                    "date": app.versionDate,
+                    "localizedDescription": app.localizedDescription,
+                    "downloadURL": app.downloadURL,
+                    "size": app.size
+                })
+                sosanh.updatedAppsList.push(app.bundleIdentifier);
+                sosanh.updatedAppsCount++;
+            } else {
+                oldJson.apps.push(app);
+                sosanh.newAppsList.push(app.bundleIdentifier);
+                sosanh.newAppsCount++;
+            }
+        });
+        console.log(`Có ${sosanh.updatedAppsCount} apps update, ${sosanh.newAppsCount} apps mới. \n Nhấn Ok để tải xuống.`);
+	return [oldJson, sosanh];
+    } catch (e) {
+        console.log(e)
+	return [null, null]
+    }
+
+    function extractDataApp(str) {
+        const start = str.indexOf('{"dataApp"');
+        if (start === -1) return null;
+        let cut = str.slice(start);
+        const endMarker = '],["$","$L7b",null,{}]]}]';
+        const end = cut.indexOf(endMarker);
+        if (end !== -1) {
+            cut = cut.slice(0, end); // bỏ phần đuôi
+        }
+        return cut.replace(/\\","/g, '","').replace(/\\"/g, '').replace(/\\\\\\/g, '').replace(/\\/g, '');
+    }
+}
+async function getUpdateBuildStore() {
+    console.log("Lấy danh sách App mới nhất từ Builds.io...")
+    const baseUrl = "https://ng-api.builds.io/api/v1/applications/?sort=updated_at&page=1&page_size=100";
+    try {
+        const res = await fetch(baseUrl);
+        if (!res.ok) throw new Error(res.status);
+        const json = await res.json();
+        let apps = [...json.data];
+        const total = json.count;
+        let allApp = apps.map(app => ({
+            beta: false,
+            name: app.name || "unknown",
+            type: getValue(app?.categories?.[0]?.slug),
+            bundleIdentifier: `${app?.categories?.[0]?.slug || "app"}.${app.slug}`.replace(/_/g, '-'),
+            developerName: "",
+            subtitle: app.categories[0].description || "",
+            localizedDescription: htmlToMarkdown(app.description || ""),
+            versionDescription: "",
+            tintColor: "FFC300",
+            iconURL: app.icon || "",
+            screenshotURLs: [],
+            versions: [],
+            URL: `https://builds.io/apps/${app?.categories?.[0]?.slug || "app"}/${app.slug || ""}`
+        }));
+        await Promise.all(allApp.map(async (app) => {
+            const results = await extractNextFData(app.URL);
+            if (!results || results.length < 1) return;
+            const target = results.find(r => typeof r.data === "string" && r.data.includes("appData"));
+            if (!target) return;
+            let obj;
+            try {
+                obj = toJson(target.data);
+            } catch (e) {
+                console.warn("JSON parse lỗi cho app", app.name);
+                return;
+            }
+            const appData = obj.appData;
+            if (!appData) return;
+            app.developerName = appData?.developer?.name || "Unknown";
+            app.screenshotURLs = appData.images || [];
+            app.versions = transformArray(appData.versions || []);
+            if (appData.blur_preview) app.beta = "xxx";
+            if (app.versions.length > 10) {
+                app.versions = app.versions.slice(0, 10);
+            }
+        }));
+        console.log("Kiểm tra UPDATE...");
+        const oldres = await fetch("https://drphe.github.io/KhoIPA/upload/repo.buildstore.json");
+        const oldJson = await oldres.json();
+        const sosanh = {
+            newAppsCount: 0,
+            newAppsList: [],
+            removedAppsCount: 0,
+            removedAppsList: [],
+            updatedAppsCount: 0,
+            updatedAppsList: []
+        };
+	//console.log(allApp)
+        allApp.forEach(app => {
+            const data = oldJson.apps.find(j => j.bundleIdentifier == app.bundleIdentifier);
+            if (data) {
+        if (app.versions.length) {
+		let isupdate = 0;
+            app.versions.forEach(ver => {
+                // kiểm tra xem version này đã tồn tại trong data.versions chưa
+                const exists = data.versions.some(v => v.version === ver.version);
+                if (!exists) {
+                    data.versions.push(ver); // thêm version mới
+		    isupdate++;
+                }
+            });
+		if(isupdate){
+                    sosanh.updatedAppsList.push(app.bundleIdentifier);
+                    sosanh.updatedAppsCount++;}
+        }
+            } else {
+                oldJson.apps.push(app);
+                sosanh.newAppsList.push(app.bundleIdentifier);
+                sosanh.newAppsCount++;
+            }
+        });
+        console.log(`Có ${sosanh.updatedAppsCount} apps update, ${sosanh.newAppsCount} apps mới. \n Nhấn Ok để tải xuống.`);
+        return [oldJson, sosanh];
+    } catch (e) {
+        console.error("API error", e);
+        return null;
+    }
+}
+
