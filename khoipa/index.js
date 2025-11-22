@@ -268,7 +268,7 @@ function consolidateApps(source) { // sắp xếp lại dữ liệu
                 bundleIdentifier: app.bundleIdentifier,
                 developerName: app.developerName ?? "",
                 subtitle: app.subtitle ?? "",
-                localizedDescription: app.localizedDescription ?? "Ứng dụng bên ngoài AppleStore",
+                localizedDescription: app.localizedDescription ?? "Lưu trữ IPA",
                 versionDescription: app.versionDescription ?? "",
                 tintColor: app.tintColor ?? "00adef",
                 iconURL: app.iconURL ?? "./common/assets/img/generic_app.jpeg",
@@ -836,7 +836,7 @@ function convertAppStructure(sourceApp) {
         "versionDate": versionDate,
         "tintColor": "0cabeb",
         "screenshotURLs": sourceApp.screenshots || [],
-        "localizedDescription": sourceApp.addDescription || "Ứng dụng bên ngoài AppleStore",
+        "localizedDescription": sourceApp.addDescription || "Lưu trữ IPA",
         "developerName": "Unkeyapp", // Mặc định là chuỗi rỗng
         "subtitle": sourceApp.addDescription || "",
     };
