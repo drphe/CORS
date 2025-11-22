@@ -544,22 +544,35 @@ function compareAppLists(oldData, newData) {
     };
 }
 
-function initiateDownload(data, filename) {
-    data.apps.forEach(obj => {
-        delete obj.download_page_url;
-    });
-    const jsonStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonStr], {
-        type: 'application/json'
-    });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
+function downloadFile(data, filename) {
+  const jsonStr = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
 }
+
+function initiateDownload(data, filename) {
+  data.apps.forEach(obj => delete obj.download_page_url);
+  const skipFiles = ["repo.cypwn.json", "repo.cypwn_ts.json", "repo.thuthuatjb.json"];
+  if (!skipFiles.includes(filename)) {
+    chrome.runtime.sendMessage({ type: "SAVE_CACHE", key: "bigData", value: data }, (res) => {
+      console.log("Kết quả lưu:", res);
+      if (confirm("Nhấn OK để tải file Json hoặc Hủy để chỉnh sửa trước tải!")) {
+        downloadFile(data, filename);   // OK → tải file
+      } else {
+        window.open('https://drphe.github.io/KhoIPA/studio/', '_blank'); // Cancel → mở trang
+      }
+    });
+  } else {
+    downloadFile(data, filename);
+  }
+}
+
 async function compareAndDownloadJSON(url1, url2, filename = 'new_version.json', isDisplay = true) {
     try {
         console.log("Bắt đầu fetch Json " + filename.split(".")[1]);
@@ -1052,28 +1065,22 @@ function transformArray(arr, overrides = {}) {
     }));
 }
 
+
 function downloadJSON(data, filename = "data.json") {
-    overlay.classList.remove('active'); // Ẩn overlay
-    popupConsole.innerHTML = "";
-    loadingTitle.textContent = 'Đang Xử Lý...'; // Reset tiêu đề
-    // Chuyển đối tượng JS thành chuỗi JSON
-    const jsonStr = JSON.stringify(consolidateApps(data), null, 2);
-    // Tạo Blob từ chuỗi JSON
-    const blob = new Blob([jsonStr], {
-        type: "application/json"
-    });
-    // Tạo URL tạm cho Blob
-    const url = URL.createObjectURL(blob);
-    // Tạo thẻ <a> để tải xuống
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    // Xóa thẻ <a> và URL tạm
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  overlay.classList.remove('active'); // Ẩn overlay
+  popupConsole.innerHTML = "";
+  loadingTitle.textContent = 'Đang Xử Lý...'; // Reset tiêu đề
+  const consolidated = consolidateApps(data);
+  chrome.runtime.sendMessage({ type: "SAVE_CACHE", key: "bigData", value: consolidated }, (res) => {
+    console.log("Kết quả lưu:", res);
+    if (confirm("Nhấn OK để tải file Json hoặc hủy để chỉnh sửa trước khi lưu.")) {
+      downloadFile(consolidated, filename);
+    } else {
+      window.open('https://drphe.github.io/KhoIPA/studio/', '_blank');
+    }
+  });
 }
+
 
 function htmlToMarkdown(html) {
     return html

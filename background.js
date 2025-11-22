@@ -1,3 +1,62 @@
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open("MyCacheDB", 1);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains("cache")) {
+        db.createObjectStore("cache", { keyPath: "id" });
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function saveData(id, data) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("cache", "readwrite");
+    tx.objectStore("cache").put({ id, data });
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function getData(id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("cache", "readonly");
+    const req = tx.objectStore("cache").get(id);
+    req.onsuccess = () => resolve(req.result?.data);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function deleteData(id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("cache", "readwrite");
+    tx.objectStore("cache").delete(id);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
+  if (msg.type === "SAVE_CACHE") {
+    await saveData(msg.key, msg.value);
+    sendResponse({ status: "save ok" });
+  }
+  if (msg.type === "GET_CACHE") {
+    const data = await getData(msg.key);
+    sendResponse({ status: "get ok", data });
+  }
+  if (msg.type === "DELETE_CACHE") {
+    await deleteData(msg.key);
+    sendResponse({ status: "deleted" });
+  }
+});
+
 var pref = {
     'shortcutToggle': false,
     'cssToggle': true,
