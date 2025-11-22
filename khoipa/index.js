@@ -611,14 +611,14 @@ function displayComparisonModalMultiResult(results) {
         filename,
         comparisonResult
     }, index) => {
-        const newAppsCount = comparisonResult.newAppsCount;
-        const removedAppsCount = comparisonResult.removedAppsCount;
-        const updatedAppsCount = comparisonResult.updatedAppsCount;
+        const newAppsCount = comparisonResult?.newAppsCount || 0;
+        const removedAppsCount = comparisonResult?.removedAppsCount || 0;
+        const updatedAppsCount = comparisonResult?.updatedAppsCount ||0;
         contentHTML += `
       <div style="border: 1px solid #ccc; padding: 15px; margin: 15px 0; border-radius: 6px;">
-        <h3 style="margin-bottom: 8px;">🔹 <b>${data.name || filename}</b></h3>
+        <h3 style="margin-bottom: 8px;">🔹 <b>${data?.name || filename}</b></h3>
         <ul style="list-style: none; padding-left: 0; font-size: 15px;">
-          <li>📱 Tổng số ứng dụng: <b>${data.apps.length}</b></li>
+          <li>📱 Tổng số ứng dụng: <b>${data?.apps.length||0}</b></li>
           <li>📦 Thống kê: <b style="color: green;">${newAppsCount}</b>/<b style="color: orange;">${updatedAppsCount}</b>/<b style="color: red;">${removedAppsCount}</b></li>
         </ul>
         <button class="download-btn" data-index="${index}" style="margin-top: 10px;">✅ Tải xuống ${filename}</button>
@@ -1099,6 +1099,7 @@ async function getUpdateUnkeyapp() {
     const filteredData = results.filter(item => item.data && item.data.includes("dataApp"));
     let Data = filteredData[0].data;
     try {
+	//console.log(Data, extractDataApp(Data));
         const endA = JSON.parse(extractDataApp(Data));
         const appDataList = endA.dataApp.data;
         const convertedApps = appDataList.map(app => {
@@ -1155,7 +1156,7 @@ async function getUpdateUnkeyapp() {
         if (end !== -1) {
             cut = cut.slice(0, end); // bỏ phần đuôi
         }
-        return cut.replace(/\\","/g, '","').replace(/\\"/g, '').replace(/\\\\\\/g, '').replace(/\\/g, '');
+        return cut.replace(/\.\\\\\",/g, '",').replace(/\\","/g, '","').replace(/\\"/g, '').replace(/\\\\\\/g, '').replace(/\\/g, '');
     }
 }
 async function getUpdateBuildStore() {
