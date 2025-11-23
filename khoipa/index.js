@@ -1247,6 +1247,14 @@ async function getUpdateBuildStore() {
                 sosanh.newAppsCount++;
             }
         });
+	console.log("Lấy danh sách Featured Apps");
+	const featuredApp = await getAndDisplayFormattedSlugs();
+	if(featuredApp.length) {
+		oldJson.featuredApps = featuredApp;
+		console.log("Đã cập nhật danh sách ứng dụng Featured")
+	}else {
+		console.log("Không cập nhật danh sách Featured Apps");
+	}
         console.log(`Có ${sosanh.updatedAppsCount} apps update, ${sosanh.newAppsCount} apps mới. \n Nhấn Ok để tải xuống.`);
         return [oldJson, sosanh];
     } catch (e) {
@@ -1254,4 +1262,46 @@ async function getUpdateBuildStore() {
         return null;
     }
 }
+function getAppSlugsFormatted(exploreData) {
+  const resultSlugs = [];
+  const featured = exploreData?.data["featured_applications"];
+
+  if (!Array.isArray(featured)) {
+    console.error("Dữ liệu không hợp lệ: Không tìm thấy 'featured apps' là mảng.");
+    return [];
+  }
+
+  featured.forEach(app => {
+    const appSlug = app.slug;
+    const categorySlug = app.categories[0].slug;
+
+    if (categorySlug && appSlug) {
+          const formattedSlug = `${categorySlug}.${appSlug}`;
+          resultSlugs.push(formattedSlug);
+    }
+  });
+
+  return resultSlugs;
+}
+
+async function getAndDisplayFormattedSlugs() {
+  const apiUrl = 'https://ng-api.builds.io/api/v1/explore/';
+  
+  try {
+    const response = await fetch(apiUrl);
+
+    if (!response.ok) {
+      throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
+    }
+
+    const exploreData = await response.json(); 
+    return getAppSlugsFormatted(exploreData);
+
+  } catch (error) {
+    console.error("Lỗi trong quá trình lấy hoặc xử lý dữ liệu:", error);
+    return [];
+  }
+}
+
+
 
