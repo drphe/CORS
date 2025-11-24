@@ -1099,7 +1099,7 @@ function htmlToMarkdown(html) {
         .replace(/\n{2,}/g, '\n') // gọn dòng trống
         .trim();
 }
-
+//getUpdateUnkeyapp()
 async function getUpdateUnkeyapp() {
 	console.log("Lấy dữ liệu mới nhất")
     const results = await extractNextFData('https://www.unkeyapp.com/app-store/category?page=1');
@@ -1156,16 +1156,19 @@ async function getUpdateUnkeyapp() {
 
     function extractDataApp(str) {
         const start = str.indexOf('{"dataApp"');
-        if (start === -1) return null;
+        if (start === -1)
+            return null;
         let cut = str.slice(start);
-        const endMarker = '],["$","$L7b",null,{}]]}]';
-        const end = cut.indexOf(endMarker);
-        if (end !== -1) {
-            cut = cut.slice(0, end); // bỏ phần đuôi
+        const endRegex = /\],\["\$\","\$[A-Za-z0-9]+",null,\{\}\]\]\}\]/;
+        const match = cut.match(endRegex);
+        if (match) {
+            const end = cut.indexOf(match[0]);
+            cut = cut.slice(0, end);
         }
         return cut.replace(/\.\\\\\",/g, '",').replace(/\\","/g, '","').replace(/\\"/g, '').replace(/\\\\\\/g, '').replace(/\\/g, '');
     }
 }
+//getUpdateBuildStore();
 async function getUpdateBuildStore() {
     console.log("Lấy danh sách App mới nhất từ Builds.io...")
     const baseUrl = "https://ng-api.builds.io/api/v1/applications/?sort=updated_at&page=1&page_size=100";
@@ -1225,26 +1228,47 @@ async function getUpdateBuildStore() {
         };
 	//console.log(allApp)
         allApp.forEach(app => {
-            const data = oldJson.apps.find(j => j.bundleIdentifier == app.bundleIdentifier);
+            const data = oldJson.apps.find(j => j.bundleIdentifier === app.bundleIdentifier);
             if (data) {
-        if (app.versions.length) {
-		let isupdate = 0;
-            app.versions.forEach(ver => {
-                // kiểm tra xem version này đã tồn tại trong data.versions chưa
-                const exists = data.versions.some(v => v.version === ver.version);
-                if (!exists) {
-                    data.versions.push(ver); // thêm version mới
-		    isupdate++;
+                if (app.versions.length) {
+                    let isupdate = 0;
+                    app.versions.forEach(ver => {
+                        // kiểm tra xem version này đã tồn tại trong data.versions chưa
+                        const exists = data.versions.some(v => v.version === ver.version);
+                        if (!exists) {
+                            data.versions.push(ver); // thêm version mới
+                            isupdate++;
+                        }
+                    });
+                    if (isupdate) {
+                        sosanh.updatedAppsList.push(app.bundleIdentifier);
+                        sosanh.updatedAppsCount++;
+                    }
                 }
-            });
-		if(isupdate){
-                    sosanh.updatedAppsList.push(app.bundleIdentifier);
-                    sosanh.updatedAppsCount++;}
-        }
             } else {
-                oldJson.apps.push(app);
-                sosanh.newAppsList.push(app.bundleIdentifier);
-                sosanh.newAppsCount++;
+                const data2 = oldJson.apps.find(j => j.bundleIdentifier.split(".")[1] === app.bundleIdentifier.split(".")[1]);
+                if (data2) {
+                    if (app.versions.length) {
+                        data2.bundleIdentifier = app.bundleIdentifier;
+                        let isupdate = 0;
+                        app.versions.forEach(ver => {
+                            // kiểm tra xem version này đã tồn tại trong data.versions chưa
+                            const exists = data2.versions.some(v => v.version === ver.version);
+                            if (!exists) {
+                                data2.versions.push(ver); // thêm version mới
+                                isupdate++;
+                            }
+                        });
+                        if (isupdate) {
+                            sosanh.updatedAppsList.push(app.bundleIdentifier);
+                            sosanh.updatedAppsCount++;
+                        }
+                    }
+                } else {
+                    oldJson.apps.push(app);
+                    sosanh.newAppsList.push(app.bundleIdentifier);
+                    sosanh.newAppsCount++;
+                }
             }
         });
 	console.log("Lấy danh sách Featured Apps");
@@ -1255,6 +1279,7 @@ async function getUpdateBuildStore() {
 	}else {
 		console.log("Không cập nhật danh sách Featured Apps");
 	}
+		console.log(sosanh)
         console.log(`Có ${sosanh.updatedAppsCount} apps update, ${sosanh.newAppsCount} apps mới. \n Nhấn Ok để tải xuống.`);
         return [oldJson, sosanh];
     } catch (e) {

@@ -42,20 +42,29 @@ async function deleteData(id) {
     tx.onerror = () => reject(tx.error);
   });
 }
-chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "SAVE_CACHE") {
-    await saveData(msg.key, msg.value);
-    sendResponse({ status: "save ok" });
+    saveData(msg.key, msg.value).then(() => {
+      sendResponse({ status: "save ok" });
+    });
+    return true; // giữ port mở
   }
+
   if (msg.type === "GET_CACHE") {
-    const data = await getData(msg.key);
-    sendResponse({ status: "get ok", data });
+    getData(msg.key).then((data) => {
+      sendResponse({ status: "get ok", data });
+    });
+    return true;
   }
+
   if (msg.type === "DELETE_CACHE") {
-    await deleteData(msg.key);
-    sendResponse({ status: "deleted" });
+    deleteData(msg.key).then(() => {
+      sendResponse({ status: "deleted" });
+    });
+    return true;
   }
 });
+
 
 var pref = {
     'shortcutToggle': false,
