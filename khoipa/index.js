@@ -15,7 +15,7 @@ const jsonData = {
         "caption": "Tap to open our App Store",
         "date": "2025-11-20",
         "tintColor": "#0cabeb",
-        "imageURL": "https://i.ibb.co/QvX7bD4S/0b1bc7854fcf.png",
+        "imageURL": "https://i.ibb.co/hFypCsBL/1750296767052-IMG-5587.jpg",
         "notify": true,
         "url": "https://www.unkeyapp.com/app-store",
         "appID": null

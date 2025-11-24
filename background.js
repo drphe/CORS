@@ -64,179 +64,6 @@ var pref = {
     'version': chrome.runtime.getManifest().version
 };
 
-class Extension {
-    // Biến để lưu trữ ID của tab chụp ảnh màn hình
-    screenshotTabId = null;
-
-    constructor() {
-        this.initMessageListeners();
-    }
-
-    // Khởi tạo các listeners để nhận message từ các script khác
-    initMessageListeners() {
-        chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            switch (request.method) {
-                case "take_screen_shot":
-                    this.screenShot(sendResponse);
-                    break;
-                case "get_pixel_color":
-                    this.getPixelColor(request.point, sendResponse);
-                    break;
-                case "save_data":
-                    this.saveData(request.config);
-                    break;
-                case "get_data":
-                    this.getData(sendResponse);
-                    break;
-                case "open_options":
-                    chrome.runtime.openOptionsPage();
-                    break;
-            }
-            return true; // Để callback không bị garbage collected
-        });
-    }
-
-    // Lấy màu pixel tại một điểm cụ thể trên trang
-    async getPixelColor(point, sendResponse) {
-        try {
-            const imageDataUrl = await chrome.tabs.captureVisibleTab();
-            const canvas = new OffscreenCanvas(1, 1);
-            const ctx = canvas.getContext("2d");
-            const img = new Image();
-
-            img.onload = () => {
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                ctx.drawImage(img, 0, 0);
-
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const pixelIndex = 4 * (point.y * imageData.width + point.x);
-                const color = {
-                    r: imageData.data[pixelIndex],
-                    g: imageData.data[pixelIndex + 1],
-                    b: imageData.data[pixelIndex + 2],
-                    a: imageData.data[pixelIndex + 3],
-                };
-
-                sendResponse(color);
-            };
-
-            img.src = imageDataUrl;
-        } catch (error) {
-            console.error("Lỗi khi lấy màu pixel:", error);
-            sendResponse(null);
-        }
-    }
-
-    // Lưu dữ liệu vào local storage
-    async saveData(config) {
-        await chrome.storage.local.set({
-            config
-        });
-    }
-
-    // Lấy dữ liệu từ local storage
-    async getData(sendResponse) {
-        const data = await chrome.storage.local.get("config");
-        sendResponse(data.config || null);
-    }
-
-    // Chèn CSS và JavaScript vào tab hiện tại
-    async inject() {
-        const [activeTab] = await chrome.tabs.query({
-            active: true,
-            currentWindow: true,
-        });
-
-        if (activeTab) {
-            try {
-                await chrome.scripting.insertCSS({
-                    target: {
-                        tabId: activeTab.id
-                    },
-                    files: ["drawtool/panelTools.css"],
-                });
-                await chrome.scripting.executeScript({
-                    target: {
-                        tabId: activeTab.id
-                    },
-                    files: ["drawtool/panelTools.js"],
-                });
-            } catch (error) {
-                console.table("Lỗi khi chèn script:", error);
-            }
-        }
-    }
-
-    // Chụp ảnh màn hình
-    async screenShot(sendResponse) {
-        const screenshotDataUrl = await chrome.tabs.captureVisibleTab();
-        let screenshotTab = null;
-
-        if (this.screenshotTabId) {
-            screenshotTab = await chrome.tabs
-                .get(this.screenshotTabId)
-                .catch(() => null);
-        }
-
-        if (screenshotTab) {
-            await chrome.tabs.update(screenshotTab.id, {
-                active: true
-            });
-            this.updateScreenshot(screenshotDataUrl, sendResponse, 0, screenshotTab);
-        } else {
-            const newTab = await chrome.tabs.create({
-                url: "drawtool/editor.html"
-            });
-            this.screenshotTabId = newTab.id;
-            this.updateScreenshot(screenshotDataUrl, sendResponse, 0, newTab);
-        }
-    }
-
-    // Gửi URL ảnh màn hình đến tab chỉnh sửa
-    updateScreenshot(
-        screenshotDataUrl,
-        sendResponse,
-        retries = 0,
-        editorTab
-    ) {
-        if (retries > 10) return;
-
-        chrome.runtime.sendMessage({
-                method: "update_url",
-                url: screenshotDataUrl
-            },
-            (response) => {
-                if (response && response.success) {
-                    sendResponse({
-                        success: true
-                    });
-                } else {
-                    setTimeout(() => {
-                        this.updateScreenshot(
-                            screenshotDataUrl,
-                            sendResponse,
-                            retries + 1,
-                            editorTab
-                        );
-                    }, 300);
-                }
-            }
-        );
-    }
-
-    // Cập nhật pop-up của extension
-    async setWarning(popupUrl) {
-        await chrome.action.setPopup({
-            popup: popupUrl
-        });
-    }
-
-}
-
-// Khởi tạo class ngay khi extension được tải
-const drawtool = new Extension();
-
 chrome.runtime.onInstalled.addListener(() => {
 
     chrome.storage.local.get(Object.keys(pref)).then(toggle => {
@@ -267,12 +94,6 @@ chrome.runtime.onInstalled.addListener(() => {
         title: "Nạp tài khoản Vieon",
         contexts: ["page"],
         documentUrlPatterns: ["*://*.vieon.vn/*"]
-    });
-    // vẽ trên trang
-    chrome.contextMenus.create({
-        id: "draw",
-        title: "🎨 Công cụ vẽ",
-        contexts: ["action"] 
     });
     // bảng gõ tắt
     chrome.contextMenus.create({
@@ -328,7 +149,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         }
     if (info.menuItemId === "wichart") {
         const wichartUrl = "https://wichart.vn";
-        // Mở một tab mới với URL đã chỉ định.
         chrome.tabs.create({
             url: wichartUrl
         });
@@ -353,8 +173,5 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         chrome.tabs.create({
             url: "morecss/dashboard.html"
         });
-    }
-    if (info.menuItemId === "draw") {
-        drawtool.inject();
     }
 });
