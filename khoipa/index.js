@@ -5,7 +5,7 @@ const jsonData = {
     "description": "Unkeyapp - Kho ứng dụng bên thứ ba.",
     "iconURL": "https://www.unkeyapp.com/_next/image?url=%2Ficon%2Flogo.png&w=256&q=75",
     "website": "https://www.unkeyapp.com/app-store",
-    "sourceURL": "https://drphe.github.io/KhoIPA/upload/repo.unkeyapp.json",
+    "sourceURL": "https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.unkeyapp.json",
     "tintColor": "0cabeb",
     "featuredApps": [],
     "apps": [],
@@ -26,9 +26,9 @@ const jsonFile = {
     "identifier": "io.build.store",
     "subtitle": "BuildStore – safe and trustworthy app store for iOS",
     "description": "BuildStore – safe and trustworthy app store for iOS",
-    "iconURL": "https://drphe.github.io/KhoIPA/icon/buildstore.png",
+    "iconURL": "https://raw.githubusercontent.com/drphe/KhoIPA/main/icon/buildstore.png",
     "website": "https://builds.io/explore",
-    "sourceURL": "https://drphe.github.io/KhoIPA/upload/repo.buildstore.json",
+    "sourceURL": "https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.buildstore.json",
     "tintColor": "b87d1a",
     "featuredApps": [],
     "apps": [],
@@ -306,7 +306,7 @@ function consolidateApps(source) { // sắp xếp lại dữ liệu
         repoIcon: newSource.iconURL
     };
     newSource.sourceImage ||= newSource.iconURL;
-    newSource.sourceURL ||= "https://drphe.github.io/KhoIPA/upload/";
+    newSource.sourceURL ||= "https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/";
     return newSource;
 }
 
@@ -329,32 +329,32 @@ function normalizeDateFormat(dateStr) { // định dạng đúng ngày tháng
 }
 const repoConfigs = [{
     buttonId: 'button1',
-    url1: 'https://drphe.github.io/KhoIPA/upload/repo.cypwn.json',
+    url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.cypwn.json',
     url2: 'https://ipa.cypwn.xyz/cypwn.json',
     filename: 'repo.cypwn.json'
 }, {
     buttonId: 'button2',
-    url1: 'https://drphe.github.io/KhoIPA/upload/repo.cypwn_ts.json',
+    url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.cypwn_ts.json',
     url2: 'https://ipa.cypwn.xyz/cypwn_ts.json',
     filename: 'repo.cypwn_ts.json'
 }, {
     buttonId: 'button3',
-    url1: 'https://drphe.github.io/KhoIPA/upload/repo.nabzclan.json',
+    url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.nabzclan.json',
     url2: 'https://appstore.nabzclan.vip/repos/altstore.php',
     filename: 'repo.nabzclan.json'
 }, {
     buttonId: 'button4',
-    url1: 'https://drphe.github.io/KhoIPA/upload/repo.thuthuatjb.json',
+    url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.thuthuatjb.json',
     url2: 'https://ipa.thuthuatjb.com/view/read.php',
     filename: 'repo.thuthuatjb.json'
 }, {
     buttonId: 'button7',
-    url1: 'https://drphe.github.io/KhoIPA/upload/repo.buildstore.json',
+    url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.buildstore.json',
     url2: '',
     filename: 'repo.buildstore.json'
 }, {
     buttonId: 'button8',
-    url1: 'https://drphe.github.io/KhoIPA/upload/repo.unkeyapp.json',
+    url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.unkeyapp.json',
     url2: '',
     filename: 'repo.unkeyapp.json'
 }];
@@ -1101,12 +1101,13 @@ function htmlToMarkdown(html) {
 }
 //getUpdateUnkeyapp()
 async function getUpdateUnkeyapp() {
-	console.log("Lấy dữ liệu mới nhất")
+    console.log("Lấy dữ liệu mới nhất từ Unkeyapp")
     const results = await extractNextFData('https://www.unkeyapp.com/app-store/category?page=1');
     const filteredData = results.filter(item => item.data && item.data.includes("dataApp"));
-    let Data = filteredData[0].data;
+
     try {
-	//console.log(Data, extractDataApp(Data));
+        let Data = filteredData[0].data;
+        //console.log(Data, extractDataApp(Data));
         const endA = JSON.parse(extractDataApp(Data));
         const appDataList = endA.dataApp.data;
         const convertedApps = appDataList.map(app => {
@@ -1117,9 +1118,9 @@ async function getUpdateUnkeyapp() {
         }).filter(app => app !== null);
         //console.log(convertedApps);
         console.log("Lấy file cũ để update");
-        const oldres = await fetch("https://drphe.github.io/KhoIPA/upload/repo.unkeyapp.json");
+        const oldres = await fetch("https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.unkeyapp.json");
         const oldJson = await oldres.json();
-	const sosanh =  {
+        const sosanh = {
             newAppsCount: 0,
             newAppsList: [],
             removedAppsCount: 0,
@@ -1131,7 +1132,8 @@ async function getUpdateUnkeyapp() {
             const data = oldJson.apps.find(j => j.bundleIdentifier == app.bundleIdentifier);
             if (data) {
                 const isver = data.versions.find(v => v.version == app.version);
-                if (isver) return;
+                if (isver)
+                    return;
                 data.versions.push({
                     "version": app.version,
                     "date": app.versionDate,
@@ -1148,10 +1150,10 @@ async function getUpdateUnkeyapp() {
             }
         });
         console.log(`Có ${sosanh.updatedAppsCount} apps update, ${sosanh.newAppsCount} apps mới. \n Nhấn Ok để tải xuống.`);
-	return [oldJson, sosanh];
+        return [oldJson, sosanh];
     } catch (e) {
         console.log(e)
-	return [null, null]
+        return [null, null]
     }
 
     function extractDataApp(str) {
@@ -1216,7 +1218,7 @@ async function getUpdateBuildStore() {
             }
         }));
         console.log("Kiểm tra UPDATE...");
-        const oldres = await fetch("https://drphe.github.io/KhoIPA/upload/repo.buildstore.json");
+        const oldres = await fetch("https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.buildstore.json");
         const oldJson = await oldres.json();
         const sosanh = {
             newAppsCount: 0,

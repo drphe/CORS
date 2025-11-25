@@ -95,7 +95,7 @@ chrome.runtime.onInstalled.addListener(() => {
         id: "repo",
         title: "Tải repo editor",
         contexts: ["page", "selection", "link", "image"],
-        documentUrlPatterns: ["*://*.drphe.github.io/KhoIPA/*"]
+        documentUrlPatterns: ["*://*.drphe.github.io/KhoIPA/*", "*://*.kho-ipa.vercel.app/*"]
     });
     // Đăng nhập tài khoản Vieon VIP
     chrome.contextMenus.create({
