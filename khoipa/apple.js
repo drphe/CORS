@@ -1,3 +1,4 @@
+(function() {
 function convertAppleUrlToArm(url) {
   const pattern = /^https:\/\/apps\.apple\.com\/(.*)$/;
   const match = url.match(pattern);
@@ -9,7 +10,7 @@ function convertAppleUrlToArm(url) {
 
 setTimeout(() => {
   const container = document.querySelector('.buttons-container');
-  const shareBtn = container?.querySelector('button[aria-label="Share"]');
+  const shareBtn = container?.querySelector('button.with-label');
 
   const currentUrl = window.location.href;
   const match = currentUrl.match(/id\d+/);
@@ -51,3 +52,4 @@ setTimeout(() => {
     container.appendChild(armBtn);
   }
 }, 1000);
+})();

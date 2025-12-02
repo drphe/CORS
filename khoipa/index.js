@@ -337,11 +337,11 @@ const repoConfigs = [{
     url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.cypwn_ts.json',
     url2: 'https://ipa.cypwn.xyz/cypwn_ts.json',
     filename: 'repo.cypwn_ts.json'
-}, {
-    buttonId: 'button3',
-    url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.nabzclan.json',
-    url2: 'https://appstore.nabzclan.vip/repos/altstore.php',
-    filename: 'repo.nabzclan.json'
+//}, {
+//    buttonId: 'button3',
+//    url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.nabzclan.json',
+//    url2: 'https://appstore.nabzclan.vip/repos/altstore.php',
+//    filename: 'repo.nabzclan.json'
 }, {
     buttonId: 'button4',
     url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.thuthuatjb.json',
