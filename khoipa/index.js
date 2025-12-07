@@ -450,7 +450,7 @@ document.getElementById('button6')?.addEventListener("click", async () => {
     };
     let processedCount = 0;
     let successCount = 0;
-    let tong = 6;
+    let tong = 5;
     const result = [];
     for (const {
             url1,
@@ -895,8 +895,8 @@ async function mainBuildStore(progressCallback) {
     let processedCount = 0;
     await processAppsInBatches(allApp);
     console.log(`✅ App lấy thành công: ${successCount} \n ❌ App không lấy được: ${failureCount}`);
-    jsonFile.apps = allApp.filter(app => app.versions && app.versions.length > 0);
-    console.log(`Tổng số ${allApp.length} apps.\n OK để tải xuống. `);
+    jsonFile.apps = allApp.filter(app => app.versions && app.versions.length > 0 && app.downloadURL !== "");
+    console.log(`Tổng số ${jsonFile.apps.length} apps.\n OK để tải xuống. `);
     if (confirm(lastconsole)) {
         downloadJSON(jsonFile, "repo.buildstore.json");
     } else {
@@ -1212,6 +1212,7 @@ async function getUpdateBuildStore() {
             app.developerName = appData?.developer?.name || "Unknown";
             app.screenshotURLs = appData.images || [];
             app.versions = transformArray(appData.versions || []);
+			if(app.versions[0]?.downloadURL === "") console.log("Không lấy được link download!");
             if (appData.blur_preview) app.beta = "xxx";
             if (app.versions.length > 10) {
                 app.versions = app.versions.slice(0, 10);
