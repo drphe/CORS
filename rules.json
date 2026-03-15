@@ -18,7 +18,7 @@
         }]
     },
     "condition": {
-        "urlFilter": "wichart.vn",
+        "urlFilter": "wicharts.vn",
         "resourceTypes": ["xmlhttprequest"]
     }
 }, {

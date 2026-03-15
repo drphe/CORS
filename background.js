@@ -80,7 +80,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 var pref = {
     'shortcutToggle': false,
     'cssToggle': true,
-    'allowCopy': false,
     'version': chrome.runtime.getManifest().version
 };
 
@@ -125,19 +124,11 @@ chrome.runtime.onInstalled.addListener(() => {
         });
     });
 
-    // menu mở Wichart
-    chrome.contextMenus.create({
-        id: "wichart",
-        title: "Mở Wichart",
-        contexts: ["page", "selection", "link", "image"],
-        documentUrlPatterns: ["*://*.drphe.github.io/BM/*"]
-    });
-
     // Đăng nhập tài khoản Vieon VIP
     chrome.contextMenus.create({
         id: "loadVieonAccounts",
-        title: "Nạp tài khoản Vieon",
-        contexts: ["page"],
+        title: "🔑 Nạp tài khoản Vieon",
+        contexts: ["action","page"],
         documentUrlPatterns: ["*://*.vieon.vn/*"]
     });
     // bảng gõ tắt
@@ -152,22 +143,12 @@ chrome.runtime.onInstalled.addListener(() => {
         title: "✨ Giao diện tùy chỉnh CSS...",
         contexts: ["action"]
     });
-    chrome.contextMenus.create({
-        title: pref.allowCopy ? "✅ Đã bật SupperCopy" : "❌ Không dùng SupperCopy",
-        id: 'allowCopy',
-        contexts: ["action"]
-    })
-    // Hướng dẫn sử dụng
-    chrome.contextMenus.create({
-        id: "guide",
-        title: "📄 Hướng dẫn sử dụng",
-        contexts: ["action"]// Hiển thị khi nhấp chuột phải vào biểu tượng extension
-    });
+
 });
 
 // Truy cập trang web tài chính
 chrome.action.onClicked.addListener(function (tab) {
-    const url = "https://drphe.github.io/BM/vnindex";
+    const url = "https://vnindex.vercel.app";
     chrome.tabs.create({
         url: url
     });
@@ -180,10 +161,8 @@ chrome.contextMenus.onClicked.addListener(async(info, tab) => {
         note: "https://drphe.github.io/KhoIPA/studio/note.html",
         release: "https://github.com/drphe/KhoIPA/releases/new",
         edit: "https://drphe.github.io/KhoIPA/studio/?source=https://drphe.github.io/KhoIPA/upload/repo.favorite.json",
-        wichart: "https://wichart.vn",
         banggotat: "shortcut/dashboard.html",
-        css: "morecss/dashboard.html",
-        guide: "https://drphe.github.io/BM/hdsd.html"
+        css: "morecss/dashboard.html"
 
     };
 
@@ -202,12 +181,28 @@ chrome.contextMenus.onClicked.addListener(async(info, tab) => {
             height: 650
         });
     }
-    if (info.menuItemId === 'allowCopy') {
-        pref.allowCopy = !pref.allowCopy
-            await chrome.storage.local.set(pref);
-        await chrome.contextMenus.update("allowCopy", {
-            title: pref.allowCopy ? "✅ Đã bật SupperCopy" : "❌ Không dùng SupperCopy",
-        });
-    }
 
 });
+
+async function getISP() {
+  try {
+    const response = await fetch("https://speedtest.vn/get-ip-info");
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Lỗi khi lấy dữ liệu:", error);
+    return null;
+  }
+}
+
+// Lắng nghe yêu cầu từ content script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "getISP") {
+    getISP().then(isp => {
+      sendResponse({ isp });
+    });
+    return true; // giữ kênh mở cho async
+  }
+});
+
+

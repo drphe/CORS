@@ -29,20 +29,33 @@ const jsonFile = {
     "iconURL": "https://raw.githubusercontent.com/drphe/KhoIPA/main/icon/buildstore.png",
     "website": "https://builds.io/explore",
     "sourceURL": "https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.buildstore.json",
-    "tintColor": "b87d1a",
+    "tintColor": "3c2474",
     "featuredApps": [],
     "apps": [],
-    "news": [{
-        "title": "Welcome to Build Store Repo!",
-        "identifier": "buildstore.public.init",
-        "caption": "Tap to open our App Store",
-        "date": "2025-11-18",
-        "tintColor": "#b87d1a",
-        "imageURL": "https://i.ibb.co/RGYXPnhj/4b56f7615d11.png",
-        "notify": true,
-        "url": "https://builds.io/explore",
-        "appID": null
-    }]
+  "news": [
+    {
+      "title": "New Year Sale!",
+      "identifier": "news-i1krpao8oc",
+      "caption": "50% off 6-month & annual plans.",
+      "date": "2026-01-06",
+      "tintColor": "#2b1141",
+      "imageURL": "https://i.ibb.co/kgq5wkP6/5f6e569b24fe.png",
+      "notify": true,
+      "url": "https://builds.io/payment/checkout",
+      "appID": null
+    },
+    {
+      "title": "Welcome to Build Store Repo!",
+      "identifier": "buildstore.public.init",
+      "caption": "Tap to open our App Store",
+      "date": "2025-11-18",
+      "tintColor": "#3a2a55",
+      "imageURL": "https://i.ibb.co/3yhqBxqH/a53862b58d86.png",
+      "notify": true,
+      "url": "https://builds.io/explore",
+      "appID": null
+    }
+  ]
 }
 tailwind.config = {
     darkMode: 'class',
@@ -403,7 +416,7 @@ repoConfigs.forEach(({
                 }
             };
             const pageSize = 300;
-            const total = 12000;
+            const total = 13000;
             let processedCount = 0;
             let successCount = 0;
             jsonData.apps = [];
@@ -822,12 +835,13 @@ function displayComparisonModal(dataToDownload, filename, result) {
 ////unkey app store
 //////////////////
 function convertAppStructure(sourceApp) {
+    const genreOrder = [["Games", 2],["Music", 3],["Utilities", 4]];
     const updatedAt = new Date(sourceApp.updatedAt);
     const versionDate = updatedAt.toISOString().split('T')[0]; // YYYY-MM-DD
     return {
         "beta": false,
         "name": sourceApp.name,
-        "type": 1, // Giá trị mặc định
+        "type": genreOrder.find(([g]) => sourceApp.genres.includes(g))?.[1] ?? 1, // Giá trị mặc định
         "bundleIdentifier": sourceApp.bundlerId, // Tương tự bundlerId
         "version": sourceApp.version,
         "size": sourceApp.fileSize || 0,
@@ -875,14 +889,14 @@ async function mainBuildStore(progressCallback) {
 
     let allApp = apps.map(app => ({
         beta: false,
-        name: app.name || "unknown",
+        name: (app.name || "unknown").replace("- iOSGods.com",""),
         type: getValue(app?.categories?.[0]?.slug),
         bundleIdentifier: `${app?.categories?.[0]?.slug || "app"}.${app.slug}`.replace(/_/g, '-'),
         developerName: "",
         subtitle: app.categories[0].description || "",
         localizedDescription: htmlToMarkdown(app.description || ""),
         versionDescription: "",
-        tintColor: "FFC300",
+        tintColor: "3c2474",
         iconURL: app.icon || "",
         screenshotURLs: [],
         versions: [],
@@ -1130,7 +1144,7 @@ async function getUpdateUnkeyapp() {
         };
         convertedApps.forEach(app => {
             const data = oldJson.apps.find(j => j.bundleIdentifier == app.bundleIdentifier);
-            if (data) {
+            if (data && data.versions) {
                 const isver = data.versions.find(v => v.version == app.version);
                 if (isver)
                     return;
@@ -1182,14 +1196,14 @@ async function getUpdateBuildStore() {
         const total = json.count;
         let allApp = apps.map(app => ({
             beta: false,
-            name: app.name || "unknown",
+            name: (app.name || "unknown").replace("- iOSGods.com",""),
             type: getValue(app?.categories?.[0]?.slug),
             bundleIdentifier: `${app?.categories?.[0]?.slug || "app"}.${app.slug}`.replace(/_/g, '-'),
             developerName: "",
             subtitle: app.categories[0].description || "",
             localizedDescription: htmlToMarkdown(app.description || ""),
             versionDescription: "",
-            tintColor: "FFC300",
+            tintColor: "3c2474",
             iconURL: app.icon || "",
             screenshotURLs: [],
             versions: [],

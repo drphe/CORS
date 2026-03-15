@@ -1,8 +1,8 @@
 {
-    "name": "🛠️ ToolCK",
+    "name": "F2 Tool",
     "author": "Anh Phê",
-    "description": "Cài extension để khắc phục lỗi CORS của nguồn dữ liệu và nhiều chức năng khác.",
-    "version": "0.0.60",
+    "description": "Fix CORS errors and many other.",
+    "version": "0.1.00",
     "manifest_version": 3,
     "icons": {
         "16": "icons/f16.png",
@@ -33,12 +33,12 @@
     "content_scripts": [{
         "all_frames": true,
         "matches": ["<all_urls>"],
-        "js": ["morecss/content.js", "shortcut/content.js","allow.js"],
+        "js": ["morecss/content.js", "shortcut/content.js"],
         "run_at": "document_end"
-    }, {
-        "matches": ["*://*.wichart.vn/*"],
-        "js": ["revealdata.js"],
-        "run_at": "document_end"
+    },  {
+        "matches": ["*://*.fast.com/*"],
+        "js": ["fast.js"],
+        "run_at": "document_start"
     }, 
 	{
         "matches": ["*://*.drphe.github.io/*"],
@@ -50,9 +50,15 @@
         "js": ["khoipa/apple.js"],
         "run_at": "document_end"
     }, 
+			{
+        "matches": ["*://*.nguonc.com/*"],
+        "js": ["nguonc.js"],
+        "run_at": "document_end"
+    }, 
 	{
+        "all_frames": true,
         "matches": ["*://*.fireant.vn/*"],
-        "js": ["fireant.js"],
+        "js": ["fireant.js","highcharts/highcharts.js"],
         "run_at": "document_end"
     }, {
         "matches": ["*://*.vieon.vn/*"],
@@ -69,7 +75,7 @@
         "extension_pages": "script-src 'self'; object-src 'self'"
     },
     "web_accessible_resources": [{
-        "resources": ["icons/*.png", "vieon_helper/styles.css"],
+        "resources": ["icons/*.png", "vieon_helper/styles.css", "dinhgia.html", "dinhgia.js", "loading.css", "valuation.html","valuation.js"],
         "matches": ["<all_urls>"]
     }]
 }

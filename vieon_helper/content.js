@@ -75,11 +75,12 @@ function showSuggestions() {
         if (!accounts || accounts.length === 0) {
             return; // Không có tài khoản nào để gợi ý
         }
-
+	let id='vieon-account-suggester';
+	if(!document.getElementById(id)){
         // Tạo container cho gợi ý
         suggestionContainer = document.createElement('div');
         suggestionContainer.id = 'vieon-account-suggester';
-
+	}
         accounts.forEach(account => {
             const item = document.createElement('div');
             item.className = 'suggestion-item';
@@ -144,14 +145,4 @@ function closeOnEscape(event) {
     }
 }
 
-// Sử dụng MutationObserver để theo dõi sự thay đổi của DOM
-const observer = new MutationObserver((mutationsList, observer) => {
-    // Mỗi khi DOM thay đổi, ta kiểm tra lại và thiết lập lại các trường
-    findAndSetupFields();
-});
-
-// Bắt đầu theo dõi các thay đổi trên toàn bộ body của trang
-observer.observe(document.body, { childList: true, subtree: true });
-
-// Chạy hàm thiết lập ban đầu khi script được tải lần đầu
 findAndSetupFields();

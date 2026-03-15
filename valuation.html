@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Định giá VNINDEX</title>
+    <script src="highcharts/highcharts.js"></script>
+    <script src="highcharts/accessibility.js"></script>
+    <script src="highcharts/highcharts-more.js"></script>
+
+</head>
+<style>
+body {
+    font-family: Helvetica Neue, Helvetica, Arial, sans-serif !important;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    background: white;
+    color: black;
+}
+
+/* ===== DARK MODE KHI html có theme="dark" ===== */
+html[theme="dark"] body {
+    background-color: #272d34;
+    color: #d1d4dc !important;
+}
+
+html[theme="dark"] select,
+html[theme="dark"] option,
+html[theme="dark"] input[type="text"],
+html[theme="dark"] input[type="number"] {
+    background-color: #272d34;
+    color: #ffffff;
+    border-radius: 4px;
+    border: 1px solid #555;
+    padding: 4px 6px;
+}
+
+/* Hover */
+html[theme="dark"] select:hover {
+    border-color: #666;
+}
+
+/* Focus */
+html[theme="dark"] select:focus {
+    outline: none;
+    border-color: #888;
+    background-color: #2f353d;
+}
+
+/* Option selected */
+html[theme="dark"] option:checked {
+    background-color: #3a4149;
+    color: #ffffff;
+}
+
+/* ===== STYLE CHUNG ===== */
+
+select,
+option,
+input[type="text"],
+input[type="number"] {
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #444;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+}
+
+.titlestyle {
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        display: block;
+    }
+}
+    body {
+        margin: auto;
+        display: flex;
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="loading.css">
+<body>
+    <div id="container" style="width: 100%; height: calc(-50px + 100vh);"></div>
+    <div id="container2" style="width: 100%; height: calc(-50px + 100vh);"></div>
+    <script src="valuation.js"></script>
+</body>
+</html>

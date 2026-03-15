@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.local.set({ vieonAccounts: accounts }, () => {
             status.textContent = `Đã lưu thành công ${accounts.length} tài khoản VIP!`;
             status.style.color = 'green';
-            
+            document.getElementById('dataInput').value= JSON.stringify(accounts);
             // Tự động đóng popup và load lại trang sau 2 giây
             setTimeout(() => {
                 chrome.tabs.query({url: "https://vieon.vn/*"}, function(tabs) {
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 window.close();
-            }, 2000);
+            }, 60000);
         });
     }
 });
