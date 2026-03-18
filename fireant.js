@@ -164,7 +164,7 @@ async function fetchData(code) {
         const resultMe = checkLatestGrowth(closep);
         var iframeHtml = `<div class="bp5-callout bp5-intent-none" style="width: 640px !important;">`;
         iframeHtml += `<h4  style="padding: 10px;margin: 4px;">📊 Các đợt điều chỉnh và mức chiết khấu</h4> ` + mockResult;
-        const temp = drawdown.slice(-11);
+        const temp = drawdown.slice(-15);
         let arrayData = [];
         for (var i = 1; i < temp.length; i++) {
             arrayData.push({
@@ -350,7 +350,7 @@ function renderChart(data, portDiv) {
             data: data.map(d => ({
                 y: d.price,
                 dataLabels: {
-                    enabled: true,
+                    enabled: false,
                     color: d.change.includes("▲") ? 'green' : 'red',
                     format: d.change
                 }

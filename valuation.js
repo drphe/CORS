@@ -106,7 +106,7 @@ function drawchart(data, type, id) {
     // Chuẩn bị dữ liệu cho biểu đồ
     const vnindexData = data.map(item => [new Date(item.Date).getTime(), item.VNINDEX]);
     let PlusRangeData, MinusRangeData;
-    if (type == "PB") {
+    if (type == "P/B") {
         PlusRangeData = data.map(item => [new Date(item.Date).getTime(), item.PBplus1std, item.PBplus2std]);
         MinusRangeData = data.map(item => [new Date(item.Date).getTime(), item.PBminus2std, item.PBminus1std]);
     }

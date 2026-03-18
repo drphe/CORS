@@ -56,6 +56,11 @@
         "run_at": "document_end"
     }, 
 	{
+        "matches": ["*://*.smoney.com.vn/*"],
+        "js": ["smoney.js"],
+        "run_at": "document_end"
+    }, 
+	{
         "all_frames": true,
         "matches": ["*://*.fireant.vn/*"],
         "js": ["fireant.js","highcharts/highcharts.js"],
