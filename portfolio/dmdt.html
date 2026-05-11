@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Portfolio Dashboard Extension</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="../echarts.min.js"></script>
+</head>
+<body>
+   <h2>THEO DÕI DANH MỤC ĐẦU TƯ <span class="date" style="font-size: 14px;font-weight:400;">(17/04/2026)</span></h2>
+    <div class="extension-wrapper">
+        <table id="portfolioTable">
+            <thead>
+                <tr>
+                    <th>Danh mục</th>
+                    <th>Loại</th>
+                    <th class="">Mã</th>
+                    <th class=" text-right">SL</th>
+                    <th class=" text-right">Giá mua</th>
+                    <th class=" text-right">Giá TT</th>
+                    <th class="text-right">Lãi/Lỗ</th>
+                    <th class="text-right">Giá trị TT</th>
+                    <th style="text-align: center;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+
+        <!------<table class="group-summary-table" id="groupSummary"></table>---->
+        <div class="chart-container">
+            <div id="coreSatelliteChart" class="chart-box"></div>
+            <div id="ccqChart" class="chart-box"></div>
+            <div id="cpChart" class="chart-box"></div>
+        </div>
+        <div class="chart-container">
+            <div id="assetTypeChart" class="chart-box"></div>
+	    <table class="overall-summary" id="overallSummary"></table>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

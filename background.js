@@ -123,7 +123,12 @@ chrome.runtime.onInstalled.addListener(() => {
             documentUrlPatterns: commonPatterns
         });
     });
-
+    // Đăng nhập tài khoản Vieon VIP
+    chrome.contextMenus.create({
+        id: "dmdt",
+        title: "📊 Danh mục đầu tư",
+        contexts: ["action","page"]
+    });
     // Đăng nhập tài khoản Vieon VIP
     chrome.contextMenus.create({
         id: "loadVieonAccounts",
@@ -162,6 +167,7 @@ chrome.contextMenus.onClicked.addListener(async(info, tab) => {
         release: "https://github.com/drphe/KhoIPA/releases/new",
         edit: "https://drphe.github.io/KhoIPA/studio/?source=https://drphe.github.io/KhoIPA/upload/repo.favorite.json",
         banggotat: "shortcut/dashboard.html",
+        dmdt: "portfolio/dmdt.html",
         css: "morecss/dashboard.html"
 
     };

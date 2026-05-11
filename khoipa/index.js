@@ -3,7 +3,7 @@ const jsonData = {
     "identifier": "com.unkeyapp.store",
     "subtitle": "Unkeyapp – kho ứng dụng bên thứ ba",
     "description": "Unkeyapp - Kho ứng dụng bên thứ ba.",
-    "iconURL": "https://www.unkeyapp.com/_next/image?url=%2Ficon%2Flogo.png&w=256&q=75",
+    "iconURL": "https://i.ibb.co/chdc4gB1/d07036ead96f.png",
     "website": "https://www.unkeyapp.com/app-store",
     "sourceURL": "https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.unkeyapp.json",
     "tintColor": "0cabeb",
@@ -203,9 +203,9 @@ function runTask(taskName, taskType, durationMs, data) {
     };
     console.log("Bắt đầu...")
     if (taskType === 'THUTHUATJB_TASK') {
-        mainThuthuatjb(updateProgressUI, data)
+        //mainThuthuatjb(updateProgressUI, data)
     } else if (taskType === 'NABZCLAN_TASK') {
-        mainNab(updateProgressUI, data)
+       // mainNab(updateProgressUI, data)
     } else {
         let i = 0;
         const intervalMs = durationMs / 100;
@@ -355,11 +355,11 @@ const repoConfigs = [{
 //    url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.nabzclan.json',
 //    url2: 'https://appstore.nabzclan.vip/repos/altstore.php',
 //    filename: 'repo.nabzclan.json'
-}, {
-    buttonId: 'button4',
-    url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.thuthuatjb.json',
-    url2: 'https://ipa.thuthuatjb.com/view/read.php',
-    filename: 'repo.thuthuatjb.json'
+//}, {
+//    buttonId: 'button4',
+//    url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.thuthuatjb.json',
+//    url2: 'https://ipa.thuthuatjb.com/view/read.php',
+//    filename: 'repo.thuthuatjb.json'
 }, {
     buttonId: 'button7',
     url1: 'https://raw.githubusercontent.com/drphe/KhoIPA/main/upload/repo.buildstore.json',

@@ -33,7 +33,12 @@
     "content_scripts": [{
         "all_frames": true,
         "matches": ["<all_urls>"],
-        "js": ["morecss/content.js", "shortcut/content.js"],
+        "js": ["shortcut/content.js"],
+        "run_at": "document_end"
+    },{
+        "all_frames": false,
+        "matches": ["<all_urls>"],
+        "js": ["morecss/content.js"],
         "run_at": "document_end"
     },  {
         "matches": ["*://*.fast.com/*"],
@@ -57,8 +62,13 @@
     }, 
 	{
         "matches": ["*://*.smoney.com.vn/*"],
-        "js": ["smoney.js"],
+        "js": ["smoney.js","echarts.min.js"],
         "run_at": "document_end"
+    }, 
+	{
+        "matches": ["*://*.smoney.com.vn/*"],
+        "js": ["sm.js"],
+        "run_at": "document_start"
     }, 
 	{
         "all_frames": true,
